@@ -1,0 +1,9 @@
+[submodule "feature_conjurer"]
+	path = feature_conjurer
+	url = https://github.com/not-so-fat/feature_conjurer.git
+[submodule "ml_conjurer"]
+	path = ml_conjurer
+	url = https://github.com/not-so-fat/ml_conjurer.git
+[submodule "eda_conjurer"]
+	path = eda_conjurer
+	url = https://github.com/not-so-fat/eda_conjurer.git
