@@ -6,12 +6,16 @@ Interface for all data analytics tools
 
 ## EDA (Data Load and Check)
 
-```buildoutcfg
-from conjurer import (
-    eda,
-    feature,
-    ml
-)
+- Load CSV as pandas.DataFrame with Int64 / datetime64 inference 
+- Summarize column names in multiple dfs 
+- Check key coverage between 2 dfs
+- Check basic stats
+- Visualization (histogram, scatter, ...)
+
+
+Simple Example
+```
+from conjurer import eda
 
 # Load CSVs as pandas.DataFrame (but automatically infer Int64 / datetime64 columns)
 
@@ -19,6 +23,10 @@ df_dict = {
     name: eda.read_csv("{}.csv".format(name)
     for name in ["target_training", "target_validation", "demand_history", "product", "customer"]
 }
+
+# Check stats
+for name in ["target_training", "target_validation", "demand_history", "product", "customer"]:
+    eda.check_stats(df_dict[name])
 
 # Check columns in dfs (same key in different dfs?)
 columns_df = eda.get_columns_in_dfs(df_dict.values(), df_dict.keys())
@@ -29,8 +37,14 @@ eda.get_fk_coverage(df_dict["target_training"], df_dict["demand_history"], "cust
 eda.get_fk_coverage(df_dict["target_training"], df_dict["customer"], "customer_id", "customer_id")
 eda.get_fk_coverage(df_dict["demand_history"], df_dict["product"], "product_id", "product_id")
 eda.get_fk_coverage(df_dict["demand_history"], df_dict["customer"], "customer_id", "customer_id")
+```
 
-# Feature engineering
+## Feature Engineering
+
+Use `conjurer.feature.FeatureConjurer` to generate many patterns of features.
+
+```
+from conjurer import feature
 df_dict_training = {
     "target": df_dict["target_training"],
     "demand_history": df_dict["demand_history"],
@@ -53,16 +67,21 @@ df_dict_validation = {
     "customer": df_dict["customer"]
 }
 feature_validation = f_conjurer.transform(df_dict_validation)
+```
 
-# Machine learning
+# Machine Learning
 
+Use our tuners to train ML models. Currently we support
+- lightgbm (`conjurer.ml.LGBMCLTuner` or `conjurer.ml.LGBMRGTuner`)
+
+```
+from conjurer import ml
 # Train models by 5-fold CV
 ml_tuner = ml.LGBMRGTuner()
 model = ml_tuner.tune_cv_pandas(feature_training, "sales_amount", [f.name for f in f_conjure.features], 5)
 
 # Make prediction on validation data set
 model.predict_pandas(feature_validation)
-
 ```
 
 
