@@ -69,7 +69,7 @@ df_dict_validation = {
 feature_validation = f_conjurer.transform(df_dict_validation)
 ```
 
-# Machine Learning
+## Machine Learning
 
 Use our tuners to train ML models. Currently we support
 - lightgbm (`conjurer.ml.LGBMCLTuner` or `conjurer.ml.LGBMRGTuner`)
@@ -77,8 +77,8 @@ Use our tuners to train ML models. Currently we support
 ```
 from conjurer import ml
 # Train models by 5-fold CV
-ml_tuner = ml.LGBMRGTuner()
-model = ml_tuner.tune_cv_pandas(feature_training, "sales_amount", [f.name for f in f_conjure.features], 5)
+lgbm_tuner = ml.LGBMRGTuner()
+model = lgbm_tuner.tune_cv_pandas(feature_training, "sales_amount", [f.name for f in f_conjure.features], 5)
 
 # Make prediction on validation data set
 model.predict_pandas(feature_validation)
