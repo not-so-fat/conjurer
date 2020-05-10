@@ -7,6 +7,7 @@ Interface for all data analytics tools
 ## EDA (Data Load and Check)
 
 - Load CSV as pandas.DataFrame with Int64 / datetime64 inference 
+- Load DataFrame dictionary with previous dtype configuration
 - Summarize column names in multiple dfs 
 - Check key coverage between 2 dfs
 - Check basic stats

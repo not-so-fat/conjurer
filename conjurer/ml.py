@@ -14,6 +14,8 @@ from ml_conjurer.hp_tuner.lgbm_tuner import (
     LGBMCLTuner,
     LGBMRGTuner
 )
+from ml_conjurer.cv_analyzer import CVResult
+
 
 __all__ = ["AutoSplitLGBMClassifier", "AutoSplitLGBMRegressor", "AutoSplitXGBRegressor", "AutoSplitXGBClassifier",
-           "SklearnClassifierModel", "SklearnRegressorModel", "LGBMCLTuner", "LGBMRGTuner"]
+           "SklearnClassifierModel", "SklearnRegressorModel", "LGBMCLTuner", "LGBMRGTuner", "CVResult"]
