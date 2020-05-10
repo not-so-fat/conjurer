@@ -1,5 +1,8 @@
 from eda_conjurer import check
-from eda_conjurer.load import pandas_csv
+from eda_conjurer.load import (
+    pandas_csv,
+    df_dict_loader
+)
 from eda_conjurer.vis import (
     histogram,
     scatter,
@@ -157,3 +160,6 @@ def plot_multiple_bars(xarray, yarray_list, name_list=None, xname=None, yname=No
         None
     """
     stacked_bar.plot_stacked_bars(xarray, yarray_list, name_list, xname, yname, single, layout)
+
+
+DfDictLoader = df_dict_loader.DfDictLoader
