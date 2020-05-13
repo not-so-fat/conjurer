@@ -2,7 +2,6 @@
 
 Python library to help you to perform magic on your data analytics project; which helps
 - EDA (load & check data)
-- Automatic feature engineering
 - Automatic machine learning tuning
 
 For detailed background please refer https://github.com/not-so-fat/conjurer/wiki
@@ -10,12 +9,10 @@ For detailed background please refer https://github.com/not-so-fat/conjurer/wiki
 
 ## Usage
 
-Just by following simple code, you can build prediction pipeline!
-
+You can build prediction pipeline from multiple data sources with following simple code. 
 ```
 from conjurer import (
     eda,
-    feature,
     ml
 )
 
@@ -25,23 +22,14 @@ df_dict = {
     for name in ["target", "demand_history", "product", "customer"]
 }
 
-# Specify keys which can be used for joining tables
-keys_list = [
-    {"target": "customer_id", "demand_history": "customer_id", "customer": "customer_id"},
-    {"demand_history": "product_id", "product": "product_id"}
-]
-
-# Automatic feature engineering
-f_conjurer = feature.FeatureConjurer()
-f_conjurer.fit(df_dict, "target", "sales_amount", keys_list)
-feature_training = f_conjurer.transform(df_dict_training)
+# Do feature engineering (not implemented)
+feature_training, feature_names = engineer_feature(df_dict)
 
 # Automatic lightgbm tuning 
-lgbm_tuner = ml.LGBMRGTuner()
-model = lgbm_tuner.tune_cv_pandas(feature_training, "sales_amount", [f.name for f in f_conjure.features], 5)
+model = ml.tune_cv("lightgbm", "rg", feature_training, "sales_amount", feature_names, 5)
 ```
 
-and produce prediction results!
+and produce prediction results.
 
 ```
 # Load CSV files for test data set as the same data types as training
@@ -51,10 +39,13 @@ df_dict_test = loader.load({
     for name in ["target", "demand_history", "product", "customer"]
 })
 
-# Feature generation for test data set
-feature_test = f_conjurer.transform(df_dict_test)
+# Feature generation for test data set (not implemented)
+feature_test = generate_feature(df_dict)
 
 # Get prediction on test data set
-model.predict_pandas(feature_test)
+model.predict(feature_test)
 ```
 
+## Road Map
+
+Add automatic feature engineering from multiple data sources.
