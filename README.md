@@ -46,6 +46,16 @@ feature_test = generate_feature(df_dict)
 model.predict(feature_test)
 ```
 
+## supported ml algorithms
+
+- LightGBM `lightgbm` (`gbm_autosplit.LGBMClassifier` or `gbm_autosplit.LGBMRegressor`)
+- XGBoost `xgboost` (`gbm_autosplit.XGBClassfier` or `gbm_autosplit.XGBRegressor`)
+- Random Forest `random_forest` (`sklearn.ensemble.RandomForestClassifier` or `sklearn.ensemble.RandomForestRegressor`)
+- Lasso / Logistic Regression `linear_model` (`sklearn.linear_model.Lasso` or `sklearn.linear_model.LogisticRegression`)
+
+This module uses CV by `sklearn_cv_pandas.RandomizedSearchCV` or `sklearn_cv_pandas.GridSearchCV` to use 
+pandas.DataFrame for arguments
+
 ## Road Map
 
 Add automatic feature engineering from multiple data sources.

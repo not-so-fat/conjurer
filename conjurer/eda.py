@@ -1,13 +1,12 @@
-from eda_conjurer import check
-from eda_conjurer.load import (
-    pandas_csv,
-    df_dict_loader
+from conjurer.logic.eda import check
+from conjurer.logic.eda.load import (
+    pandas_csv
 )
-from eda_conjurer.vis import (
-    histogram,
-    scatter,
+from conjurer.logic.eda.load import df_dict_loader
+from conjurer.logic.eda.vis import (
     stacked_bar
 )
+from conjurer.logic.eda.vis import histogram, scatter
 
 
 def read_csv(buffer_or_filepath, **kwargs):

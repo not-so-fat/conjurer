@@ -3,3 +3,5 @@ setup.py
 build
 conjurer_not_so_fat.egg-info
 dist
+*.egg-info
+__pycache__
