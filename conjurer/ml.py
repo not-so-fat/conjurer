@@ -46,7 +46,7 @@ def tune_sv(ml_type, problem_type, df, target_column, feature_columns,
         sklearn_cv_pandas.Model
     """
     cv = get_cv(ml_type, problem_type, scoring, **cv_args)
-    return cv.fit_cv_pandas(df, target_column, feature_columns,
+    return cv.fit_sv_pandas(df, target_column, feature_columns,
                             df_validation=df_validation, ratio_training=ratio_training, **fit_args)
 
 
