@@ -38,7 +38,7 @@ def get_cv(ml_type, problem_type, scoring=None, cv_type="random", param_dict=Non
 
 def _validate_attr(ml_type, problem_type, cv_type):
     assert ml_type in ["lightgbm", "xgboost", "linear_model", "random_forest"], \
-        "`ml_type` should be one of lightgbm, xgb, linear_model, or random_forest"
+        "`ml_type` should be one of lightgbm, xgboost, linear_model, or random_forest"
     assert problem_type in ["cl", "rg", "mcl"], "`problem_type` should be one of cl, rg, or mcl"
     assert cv_type in ["random", "grid"], "`cv_type` should be one of random or grid"
 

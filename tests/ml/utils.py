@@ -21,6 +21,10 @@ def get_input_df(sample_size):
     })
 
 
+def get_target_column(is_cl):
+    return "target_cl" if is_cl else "target_rg"
+
+
 def get_xy(sample_size, for_cl):
     input_df = get_input_df(sample_size)
     feature_columns = ["column{}".format(i) for i in range(6)]

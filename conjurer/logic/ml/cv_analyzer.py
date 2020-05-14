@@ -98,7 +98,7 @@ def plot_flat(result_df, param_names, metric_name):
             mode="lines+markers", name="training", line=dict(color=COLOR_TRAINING), marker=dict(color=COLOR_TRAINING))
     validation_line = graph_objs.Scatter(x=point_text, y=plot_df.validation_score,  yaxis="y2",
             mode="lines+markers", name="validation", line=dict(color=COLOR_VALIDATION), marker=dict(color=COLOR_VALIDATION))
-    time_bar = graph_objs.Bar(x=point_text, y=plot_df.training_time, name="time", marker=dict(color=COLOR_TIME))
+    time_bar = graph_objs.Bar(x=point_text, y=plot_df.fit_time, name="time", marker=dict(color=COLOR_TIME))
     layout = graph_objs.Layout(
             height=600, width=800,
             title="training/validation {}".format(metric_name),
@@ -186,7 +186,7 @@ def plot_by_param_box(result_df, param_name, metric_name, logscale_param=False):
             x=result_df["param_{}".format(param_name)], y=result_df.validation_score,
             name="validation", yaxis="y2", marker=dict(color=COLOR_VALIDATION))
     computation_time = graph_objs.Box(
-            x=result_df["param_{}".format(param_name)], y=result_df.training_time,
+            x=result_df["param_{}".format(param_name)], y=result_df.fit_time,
             name="time", marker=dict(color=COLOR_TIME))
     layout = graph_objs.Layout(
             width=800,
@@ -203,13 +203,13 @@ def plot_by_param_box(result_df, param_name, metric_name, logscale_param=False):
 def get_parameter_wise_stat(result_df, param_name):
     param_column_name = "param_{}".format(param_name)
     param_values = numpy.sort(result_df[param_column_name].unique())
-    mean_metrics = result_df[[param_column_name, "training_score", "validation_score", "training_time"]].groupby(by=param_column_name).mean()
+    mean_metrics = result_df[[param_column_name, "training_score", "validation_score", "fit_time"]].groupby(by=param_column_name).mean()
     return pandas.DataFrame({
             "name": [param_name],
             "uniqueParamValues": [len(param_values)],
             "std (training score)": [numpy.std(mean_metrics.training_score)],
             "std (validation score)": [numpy.std(mean_metrics.validation_score)],
-            "std (computation time)": [numpy.std(mean_metrics.training_time)]}).set_index("name")
+            "std (computation time)": [numpy.std(mean_metrics.fit_time)]}).set_index("name")
 
 
 def get_param_names(cv_results):
