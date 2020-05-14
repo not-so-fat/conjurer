@@ -6,6 +6,11 @@ Python library to help you to perform magic on your data analytics project; whic
 
 For detailed background please refer https://github.com/not-so-fat/conjurer/wiki
 
+## Install
+
+```
+pip install conjurer
+```
 
 ## Usage
 
@@ -55,7 +60,3 @@ model.predict(feature_test)
 
 This module uses CV by `sklearn_cv_pandas.RandomizedSearchCV` or `sklearn_cv_pandas.GridSearchCV` to use 
 pandas.DataFrame for arguments
-
-## Road Map
-
-Add automatic feature engineering from multiple data sources.
