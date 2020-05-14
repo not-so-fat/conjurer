@@ -40,5 +40,6 @@ def _get_layout(xname, yname):
     return graph_objs.Layout(
         xaxis=xaxis,
         yaxis=dict(title=yname or "y"),
-        barmode="relative"
+        barmode="relative",
+        hovermode="x"
     )

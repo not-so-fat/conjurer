@@ -30,7 +30,7 @@ def convert_integer_columns(df):
 
 
 def convert_timestamp_columns(df):
-    timestamp_columns = get_timestamp_columns(df.head())
+    timestamp_columns = get_timestamp_columns(df)
     for c in timestamp_columns:
         df[c] = pandas.to_datetime(df[c])
     return df
@@ -45,12 +45,13 @@ def convert_string_columns(df):
 def get_timestamp_columns(df):
     date_columns = []
     for c in [c for c in df.columns if types.is_object_dtype(df.dtypes[c])]:
+        series = df[~df[c].isnull()][c].head()
         try:
-            pandas.to_datetime(df[c])
-        except ValueError or ParserError:
+            pandas.to_datetime(series)
+        except Exception:
             continue
         else:
-            logger.debug("column {} is detected as timestamp: {}".format(c, df[c]))
+            logger.debug("column {} is detected as timestamp: {}".format(c, series))
             date_columns.append(c)
     return date_columns
 

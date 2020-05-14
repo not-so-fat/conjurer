@@ -64,5 +64,6 @@ def _get_layout(normalize, xname):
         title="Stacked Histogram",
         xaxis=xaxis,
         yaxis=dict(title="ratio" if normalize else "frequency"),
-        barmode="stack"
+        barmode="stack",
+        hovermode="x"
     )

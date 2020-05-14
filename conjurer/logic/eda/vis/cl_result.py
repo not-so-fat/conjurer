@@ -11,6 +11,7 @@ def plot_pr_curve(actual, score, xaxis_rank=False, subsample=-1, layout={}):
         indices = [int(i) for i in numpy.linspace(0, len(cl_result_df)-1, subsample)]
         cl_result_df = cl_result_df.iloc[indices, :]
     xvalues = cl_result_df[xname]
+    layout["hovermode"] = "x"
     scatter.plot_scatter_multiple(
         [xvalues, xvalues], [cl_result_df[name].values for name in ["precision", "recall"]],
         xname=xname, yname="precision/recall", name_list=["precision", "recall"], mode="lines", layout=layout

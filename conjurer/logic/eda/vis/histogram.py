@@ -1,43 +1,50 @@
 import logging
-from datetime import timedelta, datetime
+from datetime import datetime
 
 import numpy
 import pandas
+from pandas.api import types
 from plotly import graph_objs
 from plotly.offline import iplot
+
 
 logger = logging.getLogger(__name__)
 
 
-def plot_histogram(array, data_type, num_bins=50, normalize=False, minv=None, maxv=None, title=None, layout={}):
-    trace, xaxis = _generate_graph_for_continuous(array, num_bins, normalize, minv, maxv) if data_type == "numeric" \
-        else _generate_graph_for_datetime(array, num_bins, normalize, minv, maxv) if data_type == "datetime" \
-        else _generate_graph_for_categorical(array, num_bins, normalize) if data_type == "categorical" \
-        else (None, None)
-    if trace is None:
-        logger.warning("histogram is not available")
-    layout0 = _get_layout(normalize, title, xaxis)
-    fig = graph_objs.Figure(data=[trace], layout=layout0)
-    fig.update_layout(**layout)
-    iplot(fig, show_link=False)
+def plot_histogram(array, num_bins=50, normalize=False, minv=None, maxv=None, title=None, layout={}):
+    trace, xaxis = \
+        _generate_graph_for_integer(array, num_bins, normalize, minv, maxv) if types.is_integer_dtype(array.dtype) \
+            else _generate_graph_for_numeric(array, num_bins, normalize, minv, maxv) \
+            if types.is_numeric_dtype(array.dtype) \
+            else _generate_graph_for_datetime(array, num_bins, normalize, minv, maxv) \
+            if types.is_datetime64_any_dtype(array.dtype) \
+            else _generate_graph_for_categorical(array, num_bins, normalize)
+    if trace is not None:
+        layout0 = _get_layout(normalize, title, xaxis)
+        fig = graph_objs.Figure(data=[trace], layout=layout0)
+        fig.update_layout(**layout)
+        iplot(fig, show_link=False)
 
 
 def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False, minv=None, maxv=None):
     for ind, column in enumerate(df.columns):
         logger.info("...histogram for {0}".format(column))
-        adt, vmin, vmax, unique_count = \
-            stat_df.loc[stat_df["column_name"] == column,
-                        ["adt", "min", "max", "unique_count"]].values.tolist()[0]
+        vmin, vmax, unique_count = \
+            stat_df[stat_df["column_name"] == column][
+                ["min", "max", "unique_count"]].values.tolist()[0]
         minv0 = minv or vmin
         maxv0 = maxv or vmax
-        plot_histogram(df[column].values, adt, num_bins, normalize, minv0, maxv0, column)
+        plot_histogram(df[column].values, num_bins, normalize, minv0, maxv0, column)
 
 
-def _generate_graph_for_continuous(array, num_bins, normalize, minv=None, maxv=None):
+def _generate_graph_for_numeric(array, num_bins, normalize, minv=None, maxv=None):
+    if numpy.array(array[~numpy.isnan(array)]).size == 0:
+        logger.warning("skip histogram because all values are null")
+        return None, None
     minv = minv or numpy.nanmin(array)
     maxv = maxv or numpy.nanmax(array)
     if maxv == minv:
-        logger.warn("min == max")
+        logger.warning("skip histogram because min == max")
         return None, None
     lower_list, upper_list, bin_size = get_bin_config(minv, maxv, num_bins)
     count_array = get_continuous_value_counts(array, lower_list, upper_list)
@@ -49,16 +56,34 @@ def _generate_graph_for_continuous(array, num_bins, normalize, minv=None, maxv=N
 
 
 def _generate_graph_for_datetime(array, num_bins, normalize, minv=None, maxv=None):
+    if numpy.array(array[~numpy.isnan(array)]).size == 0:
+        logger.warning("skip histogram because all values are null")
+        return None, None
     _convert = lambda v: None if v is None else None if numpy.isnat(_to_datetime64(v)) else _to_datetime64(v)
     minv = _convert(minv)
     maxv = _convert(maxv)
-    return _generate_graph_for_continuous(array, num_bins, normalize, minv, maxv)
+    return _generate_graph_for_numeric(array, num_bins, normalize, minv, maxv)
+
+
+def _generate_graph_for_integer(array, num_bins, normalize, minv, maxv):
+    if numpy.array(array[~numpy.isnan(array)]).size == 0:
+        logger.warning("skip histogram because all values are null")
+        return None, None
+    vcounts = pandas.Series(array).value_counts()
+    if len(vcounts) <= num_bins:
+        if normalize:
+            total = vcounts.values.sum()
+            vcounts.values = [v / total for v in vcounts.values]
+        return graph_objs.Bar(x=vcounts.index, y=vcounts.values), {}
+    else:
+        return _generate_graph_for_numeric(array, num_bins, normalize, minv, maxv)
 
 
 def _generate_graph_for_categorical(array, num_bins, normalize):
     vcounts = pandas.Series(array).value_counts()
-    index = vcounts[:num_bins].index
-    vcounts = get_categorical_value_counts(array, index)
+    if len(vcounts) > num_bins:
+        index = vcounts[:num_bins].index
+        vcounts = get_categorical_value_counts(array, index)
     if normalize:
         total = vcounts.values.sum()
         vcounts.values = [v / total for v in vcounts.values]
@@ -94,7 +119,8 @@ def _get_layout(normalize, name, xaxis):
     return graph_objs.Layout(
         title="Histogram of {}".format(name) if name else "Histogram",
         xaxis=xaxis,
-        yaxis=dict(title="ratio" if normalize else "frequency")
+        yaxis=dict(title="ratio" if normalize else "frequency"),
+        hovermode="x"
     )
 
 
@@ -107,8 +133,8 @@ def get_bin_config(minv, maxv, num_bins):
 
 def get_continuous_value_counts(array, lower_list, upper_list):
     def _count(array, lower, upper, is_last_bin):
-        return array[(array >= lower) & (array <= upper)].size if is_last_bin else \
-            array[(array >= lower) & (array < upper)].size
+        return numpy.array(array[(array >= lower) & (array <= upper)]).size if is_last_bin else \
+            numpy.array(array[(array >= lower) & (array < upper)]).size
 
     return numpy.array([_count(array, lower_list[i], upper_list[i], False) for i in range(len(lower_list) - 1)] + \
                        [_count(array, lower_list[-1], upper_list[-1], True)])

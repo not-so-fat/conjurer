@@ -57,5 +57,6 @@ def _get_layout(xname, yname, xmin, xmax, ymin, ymax, same_scale):
         xaxis=xaxis,
         yaxis=yaxis,
         height=800 if same_scale else 400,
-        width=800
+        width=800,
+        hovermode="x"
     )

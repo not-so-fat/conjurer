@@ -83,12 +83,11 @@ def get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print=True):
     return check.get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print)
 
 
-def plot_histogram(array, data_type, num_bins=50, normalize=False, minv=None, maxv=None, title=None, layout={}):
+def plot_histogram(array, num_bins=50, normalize=False, minv=None, maxv=None, title=None, layout={}):
     """
     Plot histogram with plot.ly
     Args:
         array (numpy.array): Array you want to plot histogram
-        data_type (str): "numeric" or "categorical" or "datetime"
         num_bins (int, optional): Default=50. The number of bins used in the histogram
         normalize (bool, optional): Default=False. If True, vertical axis is ratio of records, else the number of records in each bin
         minv (optional): Default=Minimum value in array. Minimum value to generate bins
@@ -99,7 +98,7 @@ def plot_histogram(array, data_type, num_bins=50, normalize=False, minv=None, ma
     Returns:
         None
     """
-    histogram.plot_histogram(array, data_type, num_bins, normalize, minv, maxv, title, layout)
+    histogram.plot_histogram(array, num_bins, normalize, minv, maxv, title, layout)
 
 
 def plot_scatter(xarray, yarray, xname=None, yname=None, mode="markers", same_scale=False,

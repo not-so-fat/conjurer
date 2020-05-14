@@ -1,6 +1,0 @@
-[submodule "ml_conjurer"]
-	path = ml_conjurer
-	url = https://github.com/not-so-fat/ml_conjurer.git
-[submodule "eda_conjurer"]
-	path = eda_conjurer
-	url = https://github.com/not-so-fat/eda_conjurer.git

@@ -7,26 +7,12 @@ from pandas import testing
 
 from conjurer import eda
 from conjurer.logic.eda.load import pandas_csv
-
-
-INTEGER_TEST_CSV = """int1,int2
-1,
-2,1
-,2
-3,3
-"""
-
-ALL_TYPE_TEST_CSV = """date1,date2,timestamp1,int1,float1,str1,null
-2020/1/1,,2020-01-01T12:12:30,,1.1,A-1113,
-2020/12/31,2020-01-01,2020-01-01T00:00:59,1,2.5,B-1515,
-2000/3/1,2020-03-31,2020-01-01T00:00:59,2,3.8,,
-2000/3/1,2020-07-30,2020-01-01T00:00:59,3,-1.3,C-1335,
-"""
+from . import csv_data
 
 
 class TestLoadCSV(unittest.TestCase):
     def test_integer(self):
-        df = eda.read_csv(io.StringIO(INTEGER_TEST_CSV))
+        df = eda.read_csv(io.StringIO(csv_data.INTEGER_TEST_CSV))
         testing.assert_frame_equal(
             df,
             pandas.DataFrame({
@@ -36,7 +22,7 @@ class TestLoadCSV(unittest.TestCase):
         )
 
     def test_all_type(self):
-        df = eda.read_csv(io.StringIO(ALL_TYPE_TEST_CSV))
+        df = eda.read_csv(io.StringIO(csv_data.ALL_TYPE_TEST_CSV))
         testing.assert_frame_equal(
             df,
             pandas.DataFrame({
@@ -55,5 +41,5 @@ class TestLoadCSV(unittest.TestCase):
         )
 
     def test_get_timestamp_columns(self):
-        date_columns = pandas_csv.get_timestamp_columns(pandas.read_csv(io.StringIO(ALL_TYPE_TEST_CSV)))
+        date_columns = pandas_csv.get_timestamp_columns(pandas.read_csv(io.StringIO(csv_data.ALL_TYPE_TEST_CSV)))
         self.assertListEqual(date_columns, ["date1", "date2", "timestamp1"])
