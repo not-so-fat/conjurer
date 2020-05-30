@@ -1,9 +1,11 @@
 import math
+import copy
 import logging
 
 import numpy
 import pandas
 from pandas.api import types
+
 
 logger = logging.getLogger(__name__)
 
@@ -12,23 +14,31 @@ def calc_column_stat(df):
     concat_list = []
     df_size = len(df)
     for column in df.columns:
-        unique_count = len(df[column].unique())
+        unique_count = len(get_unique_values(df, column))
         logger.info("...calculating {column} (dtype: {dtype})".format(
             column=column, dtype=df.dtypes[column]))
         concat_list.append(pandas.DataFrame({
             "column_name": [column],
             "dtype": df.dtypes[column],
-            "min": [df[column].min()] if _orderable(df.dtypes[column]) else [numpy.NaN],
-            "max": [df[column].max()] if _orderable(df.dtypes[column]) else [numpy.NaN],
-            "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [numpy.NaN],
-            "std": [df[column].std()] if types.is_numeric_dtype(df.dtypes[column]) else [numpy.NaN],
-            "ratio_na": [pandas.isnull(df[column]).sum() / float(len(df))],
+            "min": [df[column].min()] if _orderable(df.dtypes[column]) else [pandas.NA],
+            "max": [df[column].max()] if _orderable(df.dtypes[column]) else [pandas.NA],
+            "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
+            "std": [df[column].std()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
+            "ratio_na": [_count_null(df[column]) / float(len(df))],
             "ratio_zero": [len(df[df[column]==0]) / float(len(df))]\
-                if types.is_numeric_dtype(df.dtypes[column]) else [numpy.NaN],
+                if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
             "unique_count": [unique_count],
             "is_unique": [unique_count == df_size]
         }, columns=["column_name", "dtype", "min", "max", "mean", "std", "ratio_na", "ratio_zero", "unique_count", "is_unique"]))
     return pandas.concat(concat_list, axis=0)
+
+
+def get_unique_values(df, columns):
+    df_tmp = _dropna(df[columns])
+    if isinstance(df_tmp, pandas.Series):
+        return set([v for v in df_tmp.values])
+    else:
+        return set([tuple(v) for v in df_tmp.values])
 
 
 def calculate_percentiles_for_df(df, column_list, ratio_list):
@@ -55,21 +65,28 @@ def _get_ind(n_record, ratio):
     return 0 if ratio == 0 else int(math.ceil(n_record * ratio)) - 1
 
 
-def detect_db_data_type_for_pandas(dtype):
-    if types.is_integer_dtype(dtype):
-        return "INTEGER"
-    elif types.is_numeric_dtype(dtype):
-        return "REAL"
-    elif types.is_datetime64_any_dtype(dtype):
-        return "TIMESTAMP"
-    elif types.is_string_dtype(dtype):
-        return "TEXT"
-    else:
-        return "UNKNOWN"
-
-
 def _orderable(dtype):
     if types.is_numeric_dtype(dtype) or types.is_datetime64_any_dtype(dtype):
         return True
     else:
         return False
+
+
+def _count_null(series):
+    # To count "" for str as NA
+    num_null = pandas.isnull(series).sum()
+    if types.is_object_dtype(series.dtype):
+        num_null += len(series[series==""])
+    return num_null
+
+
+def _dropna(df):
+    ret_df = copy.deepcopy(df)
+    if isinstance(ret_df, pandas.Series):
+        if types.is_object_dtype(ret_df):
+            ret_df[ret_df==""] = pandas.NA
+    else:
+        for c in ret_df.columns:
+            if types.is_object_dtype(df.dtypes[c]):
+                ret_df.loc[ret_df[c]=="", c] = pandas.NA
+    return ret_df.dropna()

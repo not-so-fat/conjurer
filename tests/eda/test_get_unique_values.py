@@ -42,13 +42,13 @@ class TestGetUniqueValues(unittest.TestCase):
         self._test("float_with_null", {0.5, -2.0})
 
     def test_string_1(self):
-        self._test("string_1", {"a", "b", "", "d"})
+        self._test("string_1", {"a", "b", "d"})
 
     def test_string_2(self):
-        self._test("string_2", {"a", ""})
+        self._test("string_2", {"a"})
 
     def test_string_with_null(self):
-        self._test("string_with_null", {"aaa", ""})
+        self._test("string_with_null", {"aaa"})
 
     def test_all_null(self):
         self._test("all_null", set([]))
@@ -57,13 +57,13 @@ class TestGetUniqueValues(unittest.TestCase):
         self._test(["integer_1", "float_1"], {(1, 1.5), (2, 2.5), (-3, -0.0), (0, 1.3)})
 
     def test_2_composite_with_null(self):
-        self._test(["float_2", "string_with_null"], {(0.1, "aaa"), (0.1, "")})
+        self._test(["float_2", "string_with_null"], {(0.1, "aaa")})
 
     def test_2_composite_all_null(self):
         self._test(["float_2", "all_null"], set([]))
 
     def test_3_composite(self):
-        self._test(["integer_1", "float_1", "string_with_null"], {(1, 1.5, "aaa"), (2, 2.5, "")})
+        self._test(["integer_1", "float_1", "string_with_null"], {(1, 1.5, "aaa")})
 
     def _test(self, columns, expected_values):
         unique_values = eda.get_unique_values(self.input_df, columns)

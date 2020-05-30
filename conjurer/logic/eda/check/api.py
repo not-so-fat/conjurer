@@ -1,4 +1,5 @@
 import pandas
+from pandas.api import types
 from IPython.core.display import display
 
 from conjurer.logic.eda.check import stat_calculator
@@ -20,12 +21,8 @@ def check_stats(df, skip_histogram=False):
     return stat_df
 
 
-def get_unique_values(df, columns) -> set:
-    df_tmp = df[columns].dropna()
-    if isinstance(df_tmp, pandas.Series):
-        return set([v for v in df_tmp.values])
-    else:
-        return set([tuple(v) for v in df_tmp.values])
+def get_unique_values(df, columns):
+    return stat_calculator.get_unique_values(df, columns)
 
 
 def get_columns_in_dfs(df_list, name_list):
