@@ -38,7 +38,7 @@ def convert_timestamp_columns(df):
 
 def convert_string_columns(df):
     for c in [c for c in df.columns if types.is_object_dtype(df.dtypes[c])]:
-        df[c] = df[c].fillna("").astype(str)
+        df[c] = df[c].fillna("").astype(str).replace("", pandas.NA)
     return df
 
 

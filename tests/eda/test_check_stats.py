@@ -15,7 +15,7 @@ class TestCheckStats(unittest.TestCase):
 
     def test_string(self):
         df = pandas.DataFrame({
-            "str": pandas.Series(["", pandas.NA, "aaa", "bbb"])
+            "str": pandas.Series([pandas.NA, pandas.NA, "aaa", "bbb"])
         })
         stat_df = eda.check_stats(df, True)
         testing.assert_frame_equal(

@@ -14,9 +14,9 @@ class TestGetUniqueValues(unittest.TestCase):
             "float_1": [1.5, 2.5, -0.0, 1.3],
             "float_2": [0.1, 0.1, 0.1, 0.3],
             "float_with_null": [None, 0.5, None, -2.0],
-            "string_1": ["a", "b", "", "d"],
-            "string_2": ["", "a", "a", "a"],
-            "string_with_null": ["aaa", "", None, None],
+            "string_1": ["a", "b", pandas.NA, "d"],
+            "string_2": [pandas.NA, "a", "a", "a"],
+            "string_with_null": ["aaa", pandas.NA, None, None],
             "all_null": [None, None, None, None]
         })
         for c in self.input_df.columns:

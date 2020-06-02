@@ -24,7 +24,7 @@ def calc_column_stat(df):
             "max": [df[column].max()] if _orderable(df.dtypes[column]) else [pandas.NA],
             "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
             "std": [df[column].std()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
-            "ratio_na": [_count_null(df[column]) / float(len(df))],
+            "ratio_na": [pandas.isnull(df[column]).sum() / float(len(df))],
             "ratio_zero": [len(df[df[column]==0]) / float(len(df))]\
                 if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
             "unique_count": [unique_count],
@@ -34,7 +34,7 @@ def calc_column_stat(df):
 
 
 def get_unique_values(df, columns):
-    df_tmp = _dropna(df[columns])
+    df_tmp = df[columns].dropna()
     if isinstance(df_tmp, pandas.Series):
         return set([v for v in df_tmp.values])
     else:
@@ -70,23 +70,3 @@ def _orderable(dtype):
         return True
     else:
         return False
-
-
-def _count_null(series):
-    # To count "" for str as NA
-    num_null = pandas.isnull(series).sum()
-    if types.is_object_dtype(series.dtype):
-        num_null += len(series[series==""])
-    return num_null
-
-
-def _dropna(df):
-    ret_df = copy.deepcopy(df)
-    if isinstance(ret_df, pandas.Series):
-        if types.is_object_dtype(ret_df):
-            ret_df[ret_df==""] = pandas.NA
-    else:
-        for c in ret_df.columns:
-            if types.is_object_dtype(df.dtypes[c]):
-                ret_df.loc[ret_df[c]=="", c] = pandas.NA
-    return ret_df.dropna()

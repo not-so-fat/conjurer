@@ -35,7 +35,7 @@ class TestLoadCSV(unittest.TestCase):
                                             dtype="datetime64[ns]"),
                 "int1": pandas.Series([None, 1, 2, 3], dtype="Int64"),
                 "float1": pandas.Series([1.1, 2.5, 3.8, -1.3], dtype="float64"),
-                "str1": pandas.Series(["A-1113", "B-1515", "", "C-1335"]),
+                "str1": pandas.Series(["A-1113", "B-1515", pandas.NA, "C-1335"]),
                 "null": pandas.Series([None, None, None, None], dtype="float64")
             })
         )
