@@ -100,11 +100,12 @@ def plot_flat(result_df, param_names, metric_name):
             mode="lines+markers", name="validation", line=dict(color=COLOR_VALIDATION), marker=dict(color=COLOR_VALIDATION))
     time_bar = graph_objs.Bar(x=point_text, y=plot_df.fit_time, name="time", marker=dict(color=COLOR_TIME))
     layout = graph_objs.Layout(
-            height=600, width=800,
-            title="training/validation {}".format(metric_name),
-            xaxis=dict(title="", showgrid=False, showticklabels=False, zeroline=False),
-            yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-            yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=True, zeroline=True)
+        height=600, width=800,
+        title="training/validation {}".format(metric_name),
+        xaxis=dict(title="", showgrid=False, showticklabels=False, zeroline=False),
+        yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
+        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=True, zeroline=True),
+        hovermode="x"
     )
     fig = graph_objs.Figure(data=[training_line, validation_line, time_bar], layout=layout)
     iplot(fig, show_link=False)
@@ -168,7 +169,8 @@ def plot_by_param(result_df, param_name, metric_name, logscale_param=False):
         xaxis=dict(title=param_name, showgrid=True, showticklabels=True, zeroline=False,
                    type='log' if logscale_param else 'linear'),
         yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False)
+        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False),
+        hovermode="x"
     )
     fig = graph_objs.Figure(
         data=sum(
@@ -189,12 +191,13 @@ def plot_by_param_box(result_df, param_name, metric_name, logscale_param=False):
             x=result_df["param_{}".format(param_name)], y=result_df.fit_time,
             name="time", marker=dict(color=COLOR_TIME))
     layout = graph_objs.Layout(
-            width=800,
-            height=600,
-            title="{} / computation time vs {}".format(metric_name, param_name),
-            xaxis=dict(title=param_name, showgrid=True, showticklabels=True, zeroline=False, type='log' if logscale_param else 'linear'),
-            yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-            yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False)
+        width=800,
+        height=600,
+        title="{} / computation time vs {}".format(metric_name, param_name),
+        xaxis=dict(title=param_name, showgrid=True, showticklabels=True, zeroline=False, type='log' if logscale_param else 'linear'),
+        yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
+        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False),
+        hovermode="x"
     )
     fig = graph_objs.Figure(data=[training_scatter, validation_scatter, computation_time], layout=layout)
     iplot(fig, show_link=False)

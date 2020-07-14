@@ -7,6 +7,12 @@ from .tuner_config import (
     xgboost
 )
 
+default_scoring = {
+    "cl": "roc_auc",
+    "rg": "neg_mean_squared_error",
+    "mcl": "accuracy"
+}
+
 
 def get_cv(ml_type, problem_type, scoring=None, cv_type="random", param_dict=None, n_iter=20, **kwargs):
     """
@@ -25,8 +31,7 @@ def get_cv(ml_type, problem_type, scoring=None, cv_type="random", param_dict=Non
     """
     _validate_attr(ml_type, problem_type, cv_type)
     config = getattr(globals()[ml_type], "config")
-    scoring = scoring or "roc_auc" if problem_type == "cl" else \
-        "neg_root_mean_squared_error" if problem_type == "rg" else "accuracy"
+    scoring = scoring or default_scoring[problem_type]
     ml_estimator = config.estimator_dict[problem_type]
     estimator = make_pipeline.add_default_preprocessing("ml", ml_estimator)
     param_dict = _get_param_dict(problem_type, cv_type, param_dict, "ml", config.parameters_dict)

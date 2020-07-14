@@ -29,7 +29,8 @@ def get_columns_in_dfs(df_list, name_list):
     return pandas.concat([
         pandas.DataFrame({
             "table_name": [name] * len(df.columns),
-            "column_name": df.columns
+            "column_name": df.columns,
+            "dtype": [df.dtypes[c] for c in df.columns]
         })
         for df, name in zip(df_list, name_list)
     ], ignore_index=True)
