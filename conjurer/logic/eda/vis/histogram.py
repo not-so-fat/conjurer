@@ -26,23 +26,21 @@ def plot_histogram(array, num_bins=50, normalize=False, minv=None, maxv=None, ti
         iplot(fig, show_link=False)
 
 
-def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False, minv=None, maxv=None):
+def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False):
     for ind, column in enumerate(df.columns):
         logger.info("...histogram for {0}".format(column))
         vmin, vmax, unique_count = \
             stat_df[stat_df["column_name"] == column][
                 ["min", "max", "unique_count"]].values.tolist()[0]
-        minv0 = minv or vmin
-        maxv0 = maxv or vmax
-        plot_histogram(df[column].values, num_bins, normalize, minv0, maxv0, column)
+        plot_histogram(df[column].values, num_bins, normalize, vmin, vmax, column)
 
 
 def _generate_graph_for_numeric(array, num_bins, normalize, minv=None, maxv=None):
     if numpy.array(array[~numpy.isnan(array)]).size == 0:
         logger.warning("skip histogram because all values are null")
         return None, None
-    minv = minv or numpy.nanmin(array)
-    maxv = maxv or numpy.nanmax(array)
+    minv = minv if minv is not None else numpy.nanmin(array)
+    maxv = maxv if maxv is not None else numpy.nanmax(array)
     if maxv == minv:
         logger.warning("skip histogram because min == max")
         return None, None
@@ -76,6 +74,8 @@ def _generate_graph_for_integer(array, num_bins, normalize, minv, maxv):
             vcounts.values = [v / total for v in vcounts.values]
         return graph_objs.Bar(x=vcounts.index, y=vcounts.values), {}
     else:
+        minv = minv if minv is not None else numpy.nanmin(array.astype(numpy.float))
+        maxv = maxv if maxv is not None else numpy.nanmax(array.astype(numpy.float))
         return _generate_graph_for_numeric(array, num_bins, normalize, minv, maxv)
 
 
