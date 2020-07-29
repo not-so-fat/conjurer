@@ -1,12 +1,14 @@
 from conjurer.logic.eda import check
 from conjurer.logic.eda.load import (
-    pandas_csv
+    pandas_csv,
+    df_dict_loader
 )
-from conjurer.logic.eda.load import df_dict_loader
 from conjurer.logic.eda.vis import (
-    stacked_bar
+    histogram,
+    scatter,
+    stacked_bar,
+    graph
 )
-from conjurer.logic.eda.vis import histogram, scatter
 
 
 def read_csv(buffer_or_filepath, **kwargs):
@@ -158,6 +160,20 @@ def plot_multiple_bars(xarray, yarray_list, name_list=None, xname=None, yname=No
         None
     """
     stacked_bar.plot_stacked_bars(xarray, yarray_list, name_list, xname, yname, single, layout)
+
+
+def plot_graph(g, edge_label_attr=None, layout={}):
+    """
+    Plot networkx.Graph object with plot.ly
+    Args:
+        g (networkx.Graph): graph object you want to visualize
+        edge_label_attr (optional, str): attribute name you want to use for edge label
+        layout (optional, dict): Arguments you want to pass into graph layout
+
+    Returns:
+        None
+    """
+    graph.plot_graph(g, edge_label_attr, layout)
 
 
 DfDictLoader = df_dict_loader.DfDictLoader
