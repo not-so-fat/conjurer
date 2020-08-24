@@ -3,8 +3,8 @@ from plotly import graph_objs
 from plotly.offline import iplot
 
 
-def plot_graph(g, edge_label_attr=None, layout={}):
-    pos = networkx.spring_layout(g)
+def plot_graph(g, edge_label_attr=None, pos=None, layout={}):
+    pos = networkx.spring_layout(g) if pos is None else pos
     edge_traces = _draw_edges(g, pos)
     node_trace = _draw_nodes(g, pos)
     fig = graph_objs.Figure(data=edge_traces + [node_trace], layout=layout)

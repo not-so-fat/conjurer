@@ -27,8 +27,8 @@ df_dict = {
     for name in ["target", "demand_history", "product", "customer"]
 }
 
-# Do feature engineering (not implemented)
-feature_training, feature_names = engineer_feature(df_dict)
+# Do feature engineering by yourself, and save as pandas.DataFrame
+feature_training, feature_names = generate_feature(df_dict)
 
 # Automatic lightgbm tuning 
 model = ml.tune_cv("lightgbm", "rg", feature_training, "sales_amount", feature_names, 5)
@@ -44,7 +44,7 @@ df_dict_test = loader.load({
     for name in ["target", "demand_history", "product", "customer"]
 })
 
-# Feature generation for test data set (not implemented)
+# Do feature engineering for test data set by yourself
 feature_test = generate_feature(df_dict)
 
 # Get prediction on test data set

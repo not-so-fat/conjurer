@@ -162,18 +162,19 @@ def plot_multiple_bars(xarray, yarray_list, name_list=None, xname=None, yname=No
     stacked_bar.plot_stacked_bars(xarray, yarray_list, name_list, xname, yname, single, layout)
 
 
-def plot_graph(g, edge_label_attr=None, layout={}):
+def plot_graph(g, edge_label_attr=None, pos=None, layout={}):
     """
     Plot networkx.Graph object with plot.ly
     Args:
         g (networkx.Graph): graph object you want to visualize
         edge_label_attr (optional, str): attribute name you want to use for edge label
+        pos (optional, dict): position of nodes (like output of networkx.spring_layout)
         layout (optional, dict): Arguments you want to pass into graph layout
 
     Returns:
         None
     """
-    graph.plot_graph(g, edge_label_attr, layout)
+    graph.plot_graph(g, edge_label_attr, pos, layout)
 
 
 DfDictLoader = df_dict_loader.DfDictLoader
