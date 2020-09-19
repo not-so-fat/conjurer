@@ -6,7 +6,6 @@ from conjurer.logic.eda.load import (
 from conjurer.logic.eda.vis import (
     histogram,
     scatter,
-    stacked_bar,
     graph
 )
 
@@ -85,81 +84,40 @@ def get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print=True):
     return check.get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print)
 
 
-def plot_histogram(array, num_bins=50, normalize=False, minv=None, maxv=None, title=None, layout={}):
+def plot_histogram(series, num_bins=50, normalize=False, minv=None, maxv=None):
     """
-    Plot histogram with plot.ly
+    Plot histogram with altair
     Args:
-        array (numpy.array): Array you want to plot histogram
+        series (pandas.Series): Values you want to plot histogram
         num_bins (int, optional): Default=50. The number of bins used in the histogram
         normalize (bool, optional): Default=False. If True, vertical axis is ratio of records, else the number of records in each bin
         minv (optional): Default=Minimum value in array. Minimum value to generate bins
         maxv (optional): Default=Maximum value in array. Maximum value to generate bins
-        title (optional): Graph title
-        layout (optional): Arguments you want to pass into graph layout
 
     Returns:
-        None
+       altair.Chart
     """
-    histogram.plot_histogram(array, num_bins, normalize, minv, maxv, title, layout)
+    return histogram.plot_histogram(series, num_bins, normalize, minv, maxv)
 
 
-def plot_scatter(xarray, yarray, xname=None, yname=None, mode="markers", same_scale=False,
-                 xerror=None, yerror=None, layout={}):
+def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
     """
-    Plot scatter plot with plot.ly
+    Plot scatter plot with altair. If sample size is too large, plot heatmap instead
     Args:
-        xarray (numpy.array): Array for horizontal axis
-        yarray (numpy.array): Array for vertical axis
-        xname (str, optional): Title for horizontal axis
-        yname (str, optional): Title for vertical axis
-        mode (str, optional): Default="markers". Mode used in plot.ly
-        same_scale (bool, optional): Default=False. If True make horizontal & vertical scale same
-        xerror (numpy.array, optional): If specified, add horizontal error bar in the graph
-        yerror (numpy.array, optional): If specified, add vertical error bar in the graph
-        layout (optional): Arguments you want to pass into graph layout
+        df(pandas.DataFrame): Data frame which stores all the data used in the chart
+        column_x(str): Column name for x value
+        column_y(str): Column name for y value
+        num_bins_x(int): The number of bins (used for heatmap)
+        num_bins_y(int): The number of bins (used for heatmap)
+        xmin(numeric or timestamp): Minimum X value of plot
+        xmax(numeric or timestamp): Maximum X value of plot
+        ymin(numeric or timestamp): Minimum Y value of plot
+        ymax(numeric or timestamp): Maximum Y value of plot
 
     Returns:
-        None
+        altair.Chart
     """
-    scatter.plot_scatter(xarray, yarray, xname, yname, mode, same_scale, xerror, yerror, layout)
-
-
-def plot_scatter_multiple(xarray_list, yarray_list, xname=None, yname=None, name_list=None,
-                          mode="markers", same_scale=False, layout={}):
-    """
-    Plot scatter plot for multiple pairs of arrays with plot.ly
-    Args:
-        xarray_list (list of numpy.array): Array for horizontal axis
-        yarray_list (list of numpy.array): Array for vertical axis
-        xname (str, optional): Title for horizontal axis
-        yname (str, optional): Title for vertical axis
-        name_list (list of srt, optional): Name for each scatter plot (used in legend)
-        mode (str, optional): Default="markers". Mode used in plot.ly
-        same_scale (bool, optional): Default=False. If True make horizontal & vertical scale same
-        layout (optional): Arguments you want to pass into graph layout
-
-    Returns:
-        None
-    """
-    scatter.plot_scatter_multiple(xarray_list, yarray_list, xname, yname, name_list, mode, same_scale, layout)
-
-
-def plot_multiple_bars(xarray, yarray_list, name_list=None, xname=None, yname=None, single=True, layout={}):
-    """
-    Plot bar charts with plot.ly
-    Args:
-        xarray (numpy.array): Array for horizontal axis
-        yarray_list (list of numpy.array): Array for vertical axis
-        name_list (list of str): Name for each bar (used in legend)
-        xname (str, optional): Title for horizontal axis
-        yname (str, optional): Title for vertical axis
-        single (str, optional): Default=True. If True, stacked bar in single chart, else plot many charts
-        layout (optional): Arguments you want to pass into graph layout
-
-    Returns:
-        None
-    """
-    stacked_bar.plot_stacked_bars(xarray, yarray_list, name_list, xname, yname, single, layout)
+    return scatter.plot_scatter(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
 
 
 def plot_graph(g, edge_label_attr=None, pos=None, layout={}):

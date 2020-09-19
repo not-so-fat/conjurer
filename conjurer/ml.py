@@ -1,3 +1,5 @@
+import numpy
+from sklearn import utils
 from .logic.ml.cv_analyzer import CVAnalyzer
 from .logic.ml.ml_tuner import(
     get_cv,
@@ -48,6 +50,25 @@ def tune_sv(ml_type, problem_type, df, target_column, feature_columns,
     cv = get_cv(ml_type, problem_type, scoring, **cv_args)
     return cv.fit_sv_pandas(
         df, target_column, feature_columns, df_validation=df_validation, ratio_training=ratio_training, **fit_args)
+
+
+def estimate_std(actual, predicted, metric, n_bootstrap=10, n_samples=None):
+    """
+    Estimate standard deviation for the metric in specified dataset by bootstrapping
+    Args:
+        actual(numpy.array):
+        predicted(numpy.array):
+        metric:
+        n_bootstrap:
+        n_samples:
+
+    Returns:
+
+    """
+    return numpy.std(numpy.array([
+        metric(*utils.resample(actual, predicted, n_samples=n_samples))
+        for i_bootstramp in range(n_bootstrap)
+    ]))
 
 
 CVAnalyzer = CVAnalyzer
