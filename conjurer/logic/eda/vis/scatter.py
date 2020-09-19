@@ -1,62 +1,53 @@
-from plotly import graph_objs
-from plotly.offline import iplot
+import logging
+
+import altair as alt
+
+from conjurer.logic.eda.vis import binning
 
 
-def plot_scatter(xarray, yarray, xname=None, yname=None, mode="markers", same_scale=False,
-                 xerror=None, yerror=None, layout={}):
-    xmin = xarray.min() if xerror is None else (xarray - xerror).min()
-    xmax = xarray.max() if xerror is None else (xarray + xerror).max()
-    ymin = yarray.min() if yerror is None else (yarray - yerror).min()
-    ymax = yarray.max() if yerror is None else (yarray + yerror).max()
-    if same_scale:
-        xmin = ymin = min([xmin, ymin])
-        xmax = ymax = max([xmax, ymax])
-    trace = graph_objs.Scatter(
-        x=xarray,
-        y=yarray,
-        error_x=dict(type="data", array=xerror),
-        error_y=dict(type="data", array=yerror),
-        mode=mode
+logger = logging.getLogger(__name__)
+altair_max_rows = 5000
+
+
+def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
+    if len(df) > altair_max_rows or num_bins_x is not None or num_bins_y is not None:
+        plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+    else:
+        plot_points(df, column_x, column_y, xmin, xmax, ymin, ymax)
+
+
+def plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax):
+    is_quantitative_x = binning.is_quantitative(df[column_x], num_bins_x)
+    is_quantitative_y = binning.is_quantitative(df[column_y], num_bins_y)
+    ft_df = binning.create_frequency_table_2d(
+        df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+    encode_args = _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y)
+    return alt.Chart(ft_df).mark_rect().encode(**encode_args).interactive() if is_quantitative_x or is_quantitative_y \
+        else alt.Chart(ft_df).mark_circle().encode(**encode_args).interactive()
+
+
+def _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y):
+    x_tooltip = ["{}_lb".format(column_x), "{}_ub".format(column_x)] if is_quantitative_x else [column_x]
+    y_tooltip = ["{}_lb".format(column_y), "{}_ub".format(column_y)] if is_quantitative_y else [column_y]
+    common_args = dict(
+        size="frequency",
+        color=alt.Color("frequency", scale=alt.Scale(scheme="greys")),
+        tooltip=x_tooltip + y_tooltip + ["frequency"]
     )
-    fig = graph_objs.Figure(data=[trace], layout=_get_layout(xname, yname, xmin, xmax, ymin, ymax, same_scale))
-    fig.update_layout(**layout)
-    iplot(fig, show_link=False)
+    x_args = dict(
+        x=alt.X("_lb".format(column_x), title=column_x),
+        x2="_ub".format(column_x)
+    ) if is_quantitative_x else dict(x=column_x)
+    y_args = dict(
+        y=alt.X("_lb".format(column_y), title=column_y),
+        y2="_ub".format(column_y)
+    ) if is_quantitative_y else dict(y=column_y)
+    return {**common_args, **x_args, **y_args}
 
 
-def plot_scatter_multiple(xarray_list, yarray_list, xname=None, yname=None, name_list=None,
-                          mode="markers", same_scale=False, layout={}):
-    xmin = min([x_array.min() for x_array in xarray_list])
-    xmax = max([x_array.max() for x_array in xarray_list])
-    ymin = min([y_array.min() for y_array in yarray_list])
-    ymax = max([y_array.max() for y_array in yarray_list])
-    if same_scale:
-        xmin = ymin = min([xmin, ymin])
-        xmax = ymax = max([xmax, ymax])
-    name_list = name_list or ["input-{}".format(i) for i in range(len(xarray_list))]
-    trace_list = [
-        graph_objs.Scatter(
-            x=x_array,
-            y=y_array,
-            mode=mode,
-            name=name
-        )
-        for x_array, y_array, name in zip(xarray_list, yarray_list, name_list)
-    ]
-    fig = graph_objs.Figure(data=trace_list, layout=_get_layout(xname, yname, xmin, xmax, ymin, ymax, same_scale))
-    fig.update_layout(**layout)
-    iplot(fig, show_link=False)
-
-
-def _get_layout(xname, yname, xmin, xmax, ymin, ymax, same_scale):
-    xname = xname or "x"
-    yname = yname or "y"
-    xaxis = dict(title=xname, range=[xmin, xmax])
-    yaxis = dict(title=yname, range=[ymin, ymax])
-    return graph_objs.Layout(
-        title="{} vs {}".format(yname, xname),
-        xaxis=xaxis,
-        yaxis=yaxis,
-        height=800 if same_scale else 400,
-        width=800,
-        hovermode="x"
-    )
+def plot_points(df, column_x, column_y, xmin=None, xmax=None, ymin=None, ymax=None):
+    return alt.Chart(df).mark_circle().encode(
+        x=alt.X(column_x, domain=[xmin, xmax]),
+        y=alt.Y(column_y, domain=[ymin, ymax]),
+        tooltip=[column_x, column_y]
+    ).interactive()

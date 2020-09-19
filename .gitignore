@@ -1,5 +1,4 @@
 .idea
-setup.py
 build
 conjurer_not_so_fat.egg-info
 dist
