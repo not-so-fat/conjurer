@@ -99,13 +99,12 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
     lines = base.mark_line()
     points = base.mark_circle()
     error = base.mark_errorband()
-    selectors, rules, text = line.add_ruler_vertical(lines, column_x, "value")
     time = alt.Chart(melt_df[melt_df["variable"].isin(["fit_time"])]).mark_bar().encode(
         x=column_x, y=alt.Y("value", title="fit time (sec)"),
         yError="std_value", tooltip=["param_{}".format(param_name) for param_name in param_names]
     )
     return alt.vconcat(
-        (lines + points + error + selectors + rules + text).properties(height=150, width=400),
+        (lines + points + error).properties(height=150, width=400),
         time.properties(height=150, width=400)
     ).resolve_scale(x="shared")
 
