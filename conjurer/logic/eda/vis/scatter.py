@@ -6,7 +6,7 @@ from conjurer.logic.eda.vis import binning
 altair_max_rows = 5000
 
 
-def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
+def plot_scatter(df, column_x, column_y, num_bins_x=None, num_bins_y=None, xmin=None, xmax=None, ymin=None, ymax=None):
     if len(df) > altair_max_rows or num_bins_x is not None or num_bins_y is not None:
         return plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
     else:
@@ -32,12 +32,12 @@ def _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y):
         tooltip=x_tooltip + y_tooltip + ["frequency"]
     )
     x_args = dict(
-        x=alt.X("_lb".format(column_x), title=column_x),
-        x2="_ub".format(column_x)
+        x=alt.X("{}_lb".format(column_x), title=column_x),
+        x2="{}_ub".format(column_x)
     ) if is_quantitative_x else dict(x=column_x)
     y_args = dict(
-        y=alt.X("_lb".format(column_y), title=column_y),
-        y2="_ub".format(column_y)
+        y=alt.X("{}_lb".format(column_y), title=column_y),
+        y2="{}_ub".format(column_y)
     ) if is_quantitative_y else dict(y=column_y)
     return {**common_args, **x_args, **y_args}
 
