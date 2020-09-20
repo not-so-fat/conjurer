@@ -88,7 +88,7 @@ def create_result_df(cv_result, param_names):
 
 def plot_flat(result_df, param_names, metric_name):
     melt_df = create_melt_df(result_df, param_names)
-    plot_metric_and_time(melt_df, "index", metric_name, param_names)
+    return plot_metric_and_time(melt_df, "index", metric_name, param_names)
 
 
 def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
