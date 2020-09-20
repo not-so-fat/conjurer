@@ -44,7 +44,16 @@ def _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y):
 
 def plot_points(df, column_x, column_y, xmin=None, xmax=None, ymin=None, ymax=None):
     return alt.Chart(df).mark_circle().encode(
-        x=alt.X(column_x, domain=[xmin, xmax]),
-        y=alt.Y(column_y, domain=[ymin, ymax]),
+        x=alt.X(column_x, **_get_axis_args(df, column_x, xmin, xmax)),
+        y=alt.Y(column_y, **_get_axis_args(df, column_y, ymin, ymax)),
         tooltip=[column_x, column_y]
     ).interactive()
+
+
+def _get_axis_args(df, column, minv, maxv):
+    if minv is not None or maxv is not None:
+        minv = minv if minv is not None else df[column].min()
+        maxv = maxv if maxv is not None else df[column].max()
+        return dict(domain=[minv, maxv])
+    else:
+        return {}
