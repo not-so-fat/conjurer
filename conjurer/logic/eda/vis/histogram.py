@@ -21,7 +21,7 @@ def plot_histogram(values, num_bins=50, normalize=False, minv=None, maxv=None):
     if len(bin_df.columns) > 3:
         return binned_bar.plot_bar_with_binned(bin_df, bin_df.columns[0], bin_df.columns[1], column_y)
     else:
-        args = {} if types.is_integer_dtype(values.dtype) else dict(sort="-{}".format(column_y))
+        args = {} if types.is_integer_dtype(values.dtype) else dict(sort="-y")
         return alt.Chart(bin_df).mark_bar().encode(
             x=alt.X("{}:N".format(bin_df.columns[0]), **args),
             y=column_y
