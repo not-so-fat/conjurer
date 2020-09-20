@@ -5,8 +5,6 @@ import pandas
 from IPython.core.display import display
 import altair as alt
 
-from conjurer.logic.eda.vis import line
-
 
 COLOR_TRAINING = 'blue'
 COLOR_VALIDATION = 'red'
