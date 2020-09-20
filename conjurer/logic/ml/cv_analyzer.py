@@ -23,7 +23,7 @@ class CVAnalyzer(object):
         self._validate()
 
     def plot_flat(self):
-        plot_flat(self.result_df, self.param_names, self.metric_name)
+        return plot_flat(self.result_df, self.param_names, self.metric_name)
 
     def plot_by_param_all(self):
         for param_name in self.param_names:
