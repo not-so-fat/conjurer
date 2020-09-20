@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/not-so-fat/conjurer",
     install_requires=[
-        "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "plotly", "IPython", "matplotlib",
+        "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "IPython",
         "lightgbm", "xgboost", "sklearn_cv_pandas", "gbm_autosplit>=0.0.1", "networkx"
     ],
     packages=setuptools.find_packages(),

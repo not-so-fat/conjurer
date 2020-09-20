@@ -5,9 +5,7 @@ from conjurer.logic.eda.load import (
 )
 from conjurer.logic.eda.vis import (
     histogram,
-    scatter,
-    line,
-    graph
+    scatter
 )
 
 
@@ -139,37 +137,6 @@ def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
         altair.Chart
     """
     return scatter.plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
-
-
-def plot_line(df, column_x, column_y, column_yerr=None):
-    """
-    Get line chart of x-y (and yerror)
-    Args:
-        df (pandas.DataFrame): DataFrame contains all data
-        column_x (str): Column name for X axis
-        column_y (str): Column name for Y axis
-        column_yerr (str): Column name for error of Y axis
-
-    Returns:
-        altair.Chart
-
-    """
-    return line.plot_line(df, column_x, column_y, column_yerr)
-
-
-def plot_graph(g, edge_label_attr=None, pos=None, layout={}):
-    """
-    Plot networkx.Graph object with plot.ly
-    Args:
-        g (networkx.Graph): graph object you want to visualize
-        edge_label_attr (optional, str): attribute name you want to use for edge label
-        pos (optional, dict): position of nodes (like output of networkx.spring_layout)
-        layout (optional, dict): Arguments you want to pass into graph layout
-
-    Returns:
-        None
-    """
-    graph.plot_graph(g, edge_label_attr, pos, layout)
 
 
 DfDictLoader = df_dict_loader.DfDictLoader
