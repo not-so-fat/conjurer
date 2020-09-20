@@ -18,6 +18,7 @@ def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
     is_quantitative_y = binning.is_quantitative(df[column_y], num_bins_y)
     ft_df = binning.create_frequency_table_2d(
         df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+    ft_df = ft_df[ft_df["frequency"] > 0]
     encode_args = _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y)
     return alt.Chart(ft_df).mark_rect().encode(**encode_args).interactive() if is_quantitative_x or is_quantitative_y \
         else alt.Chart(ft_df).mark_circle().encode(**encode_args).interactive()
