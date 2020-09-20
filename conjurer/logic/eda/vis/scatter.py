@@ -6,11 +6,11 @@ from conjurer.logic.eda.vis import binning
 altair_max_rows = 5000
 
 
-def plot_scatter(df, column_x, column_y, num_bins_x=None, num_bins_y=None, xmin=None, xmax=None, ymin=None, ymax=None):
-    if len(df) > altair_max_rows or num_bins_x is not None or num_bins_y is not None:
-        return plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+def plot_scatter(df, column_x, column_y, **kwargs):
+    if len(df) > altair_max_rows:
+        return plot_heatmap(df, column_x, column_y, **kwargs)
     else:
-        return plot_points(df, column_x, column_y, xmin, xmax, ymin, ymax)
+        return plot_points(df, column_x, column_y, **kwargs)
 
 
 def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):

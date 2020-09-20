@@ -101,7 +101,7 @@ def plot_histogram(series, num_bins=50, normalize=False, minv=None, maxv=None):
     return histogram.plot_histogram(series, num_bins, normalize, minv, maxv)
 
 
-def plot_scatter(df, column_x, column_y, num_bins_x=None, num_bins_y=None, xmin=None, xmax=None, ymin=None, ymax=None):
+def plot_scatter(df, column_x, column_y, **kwargs):
     """
     Plot scatter plot with altair. If sample size is too large, plot heatmap instead
     Args:
@@ -118,7 +118,7 @@ def plot_scatter(df, column_x, column_y, num_bins_x=None, num_bins_y=None, xmin=
     Returns:
         altair.Chart
     """
-    return scatter.plot_scatter(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+    return scatter.plot_scatter(df, column_x, column_y, **kwargs)
 
 
 def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
