@@ -1,11 +1,8 @@
-import logging
-
 import altair as alt
 
 from conjurer.logic.eda.vis import binning
 
 
-logger = logging.getLogger(__name__)
 altair_max_rows = 5000
 
 
@@ -16,7 +13,7 @@ def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
         plot_points(df, column_x, column_y, xmin, xmax, ymin, ymax)
 
 
-def plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax):
+def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
     is_quantitative_x = binning.is_quantitative(df[column_x], num_bins_x)
     is_quantitative_y = binning.is_quantitative(df[column_y], num_bins_y)
     ft_df = binning.create_frequency_table_2d(

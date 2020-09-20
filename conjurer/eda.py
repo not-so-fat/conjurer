@@ -6,6 +6,7 @@ from conjurer.logic.eda.load import (
 from conjurer.logic.eda.vis import (
     histogram,
     scatter,
+    line,
     graph
 )
 
@@ -118,6 +119,42 @@ def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
         altair.Chart
     """
     return scatter.plot_scatter(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+
+
+def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
+    """
+    Plot heatmap with altair.
+    Args:
+        df(pandas.DataFrame): Data frame which stores all the data used in the chart
+        column_x(str): Column name for x value
+        column_y(str): Column name for y value
+        num_bins_x(int): The number of bins
+        num_bins_y(int): The number of bins
+        xmin(numeric or timestamp): Minimum X value of plot
+        xmax(numeric or timestamp): Maximum X value of plot
+        ymin(numeric or timestamp): Minimum Y value of plot
+        ymax(numeric or timestamp): Maximum Y value of plot
+
+    Returns:
+        altair.Chart
+    """
+    return scatter.plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+
+
+def plot_line(df, column_x, column_y, column_yerr=None):
+    """
+    Get line chart of x-y (and yerror)
+    Args:
+        df (pandas.DataFrame): DataFrame contains all data
+        column_x (str): Column name for X axis
+        column_y (str): Column name for Y axis
+        column_yerr (str): Column name for error of Y axis
+
+    Returns:
+        altair.Chart
+
+    """
+    return line.plot_line(df, column_x, column_y, column_yerr)
 
 
 def plot_graph(g, edge_label_attr=None, pos=None, layout={}):
