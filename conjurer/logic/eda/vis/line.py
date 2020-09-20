@@ -1,14 +1,20 @@
 import altair as alt
+from pandas.api import types
 
 
-def plot_line(df, column_x, column_y, column_yerror=None):
-    encode_args = dict(x=column_x, y=column_y)
-    if column_yerror:
-        encode_args["yError"] = column_yerror
-    base = alt.Chart(df).encode(**encode_args)
-    c1 = base.mark_line()
-    if column_yerror:
-        c2 = base.mark_errorband()
-        return (c1 + c2).interactive()
-    else:
-        return c1.interactive()
+def add_ruler_vertical(lines, column_name_x, column_name_y):
+    column_x = lines.encoding.x
+    type_ind_x = ":Q" if types.is_numeric_dtype(lines.data[column_name_x].dtype) else ":N"
+    type_ind_y = ":Q" if types.is_numeric_dtype(lines.data[column_name_y].dtype) else ":N"
+    nearest = alt.selection(type='single', nearest=True, on='mouseover',
+                            fields=["{}{}".format(column_x, type_ind_x)], empty='none')
+    selectors = alt.Chart(lines.data).mark_point().encode(
+        x=column_x,
+        opacity=alt.value(0),
+    ).add_selection(nearest)
+    text = lines.mark_text(align='left', dx=5, dy=-5).encode(
+        text=alt.condition(nearest, "{}{}".format(column_name_y, type_ind_y), alt.value(' '))
+    )
+    rules = alt.Chart(lines.data).mark_rule(color='gray').encode(x=column_x).transform_filter(nearest)
+    return selectors, text, rules
+

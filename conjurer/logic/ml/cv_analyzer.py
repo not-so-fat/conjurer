@@ -5,7 +5,7 @@ import pandas
 from IPython.core.display import display
 import altair as alt
 
-from conjurer import eda
+from conjurer.logic.eda.vis import line
 
 
 COLOR_TRAINING = 'blue'
@@ -30,7 +30,7 @@ class CVAnalyzer(object):
             self.plot_by_param(param_name).display()
 
     def plot_by_param(self, param_name):
-        return plot_by_param(self.result_df, param_name, self.metric_name)
+        return plot_by_param(self.result_df, param_name, self.metric_name, self.param_names)
 
     def get_summary(self):
         print("Best {} model".format(self.metric_name))
@@ -87,23 +87,46 @@ def create_result_df(cv_result, param_names):
 
 
 def plot_flat(result_df, param_names, metric_name):
+    melt_df = create_melt_df(result_df, param_names)
+    plot_metric_and_time(melt_df, "index", metric_name, param_names)
+
+
+def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
+    base = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
+        x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
+        yError="std_value", color="variable"
+    )
+    lines = base.mark_line()
+    points = base.mark_circle()
+    error = base.mark_errorband()
+    selectors, rules, text = line.add_ruler_vertical(lines, column_x, "value")
+    time = alt.Chart(melt_df[melt_df["variable"].isin(["fit_time"])]).mark_bar().encode(
+        x=column_x, y=alt.Y("value", title="fit time (sec)"),
+        yError="std_value", tooltip=["param_{}".format(param_name) for param_name in param_names]
+    )
+    return alt.vconcat(
+        (lines + points + error + selectors + rules + text).properties(height=150, width=400),
+        time.properties(height=150, width=400)
+    ).resolve_scale(x="shared")
+
+
+def plot_by_param(result_df, param_name, metric_name, param_names):
+    melt_df = create_melt_df(result_df, param_names)
+    melt_df = melt_df.sort_values(by="param_{}".format(param_name))
+    return plot_metric_and_time(melt_df, "param_{}".format(param_name), metric_name, param_names)
+
+
+def create_melt_df(result_df, param_names):
     plot_df = result_df.sort_values(by="validation_score")
-    plot_df["params"] = ["\n".join(["{}: {}".format(
-            param_name, row["param_{}".format(param_name)]) for param_name in param_names])
-                 for index, row in plot_df.iterrows()]
-    c1 = eda.plot_line(plot_df, "params", "training_score")
-    c2 = eda.plot_line(plot_df, "params", "validation_score")
-    c3 = alt.Chart(plot_df).mark_bar().encode(x="params", y="fit_time")
-    return alt.vconcat((c1+c2).properties(height=300, width=800), c3)
-
-
-def plot_by_param(result_df, param_name, metric_name, logscale_param=False):
-    result_df = result_df.sort_values(by="param_{}".format(param_name))
-    charts = [
-        eda.plot_line(result_df, "param_{}".format(param_name), yname, "std_{}".format(yname))
-        for yname in ["training_score", "validation_score", "fit_time"]
-    ]
-    return alt.vconcat(charts[0]+charts[1], charts[2]).resolve_scale(x="shared")
+    plot_df["index"] = range(len(plot_df))
+    plot_df["index"] = range(len(plot_df))
+    melt_df1 = plot_df.melt(["index"] + ["param_{}".format(param_name) for param_name in param_names],
+                            ["training_score", "validation_score", "fit_time"])
+    melt_df2 = plot_df.melt(["index"], ["std_training_score", "std_validation_score", "std_fit_time"]).rename(
+        columns={"value": "std_value"}
+    )
+    melt_df2["variable"] = melt_df2["variable"].str.replace("std_", "")
+    return melt_df1.merge(melt_df2, on=["index", "variable"])
 
 
 def get_parameter_wise_stat(result_df, param_name):
