@@ -5,8 +5,7 @@ from conjurer.logic.eda.load import (
 )
 from conjurer.logic.eda.vis import (
     histogram,
-    scatter,
-    graph
+    scatter
 )
 
 
@@ -100,7 +99,7 @@ def plot_histogram(series, num_bins=50, normalize=False, minv=None, maxv=None):
     return histogram.plot_histogram(series, num_bins, normalize, minv, maxv)
 
 
-def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
+def plot_scatter(df, column_x, column_y, **kwargs):
     """
     Plot scatter plot with altair. If sample size is too large, plot heatmap instead
     Args:
@@ -117,22 +116,27 @@ def plot_scatter(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
     Returns:
         altair.Chart
     """
-    return scatter.plot_scatter(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+    return scatter.plot_scatter(df, column_x, column_y, **kwargs)
 
 
-def plot_graph(g, edge_label_attr=None, pos=None, layout={}):
+def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
     """
-    Plot networkx.Graph object with plot.ly
+    Plot heatmap with altair.
     Args:
-        g (networkx.Graph): graph object you want to visualize
-        edge_label_attr (optional, str): attribute name you want to use for edge label
-        pos (optional, dict): position of nodes (like output of networkx.spring_layout)
-        layout (optional, dict): Arguments you want to pass into graph layout
+        df(pandas.DataFrame): Data frame which stores all the data used in the chart
+        column_x(str): Column name for x value
+        column_y(str): Column name for y value
+        num_bins_x(int): The number of bins
+        num_bins_y(int): The number of bins
+        xmin(numeric or timestamp): Minimum X value of plot
+        xmax(numeric or timestamp): Maximum X value of plot
+        ymin(numeric or timestamp): Minimum Y value of plot
+        ymax(numeric or timestamp): Maximum Y value of plot
 
     Returns:
-        None
+        altair.Chart
     """
-    graph.plot_graph(g, edge_label_attr, pos, layout)
+    return scatter.plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
 
 
 DfDictLoader = df_dict_loader.DfDictLoader

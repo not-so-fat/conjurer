@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="conjurer",
-    version="0.0.11",
+    version="0.0.12",
     author="@not-so-fat",
     author_email="conjurer.not.so.fat@gmail.com",
     description="Python library to help you to perform magic on your data analytics project",
@@ -13,8 +13,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/not-so-fat/conjurer",
     install_requires=[
-        "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "plotly", "IPython", "matplotlib",
-        "lightgbm", "xgboost", "sklearn_cv_pandas", "gbm_autosplit", "networkx"
+        "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "IPython",
+        "lightgbm", "xgboost", "sklearn_cv_pandas", "gbm_autosplit>=0.0.1", "networkx"
     ],
     packages=setuptools.find_packages(),
     classifiers=[

@@ -3,8 +3,7 @@ import logging
 import numpy
 import pandas
 from IPython.core.display import display
-from plotly.offline import iplot
-from plotly import graph_objs
+import altair as alt
 
 
 COLOR_TRAINING = 'blue'
@@ -22,18 +21,14 @@ class CVAnalyzer(object):
         self._validate()
 
     def plot_flat(self):
-        plot_flat(self.result_df, self.param_names, self.metric_name)
+        return plot_flat(self.result_df, self.param_names, self.metric_name)
 
-    def plot_by_param_all(self, use_logscale=False, use_box=False):
+    def plot_by_param_all(self):
         for param_name in self.param_names:
-            self.plot_by_param(param_name, use_logscale, use_box)
+            self.plot_by_param(param_name).display()
 
-    def plot_by_param(self, param_name, use_logscale=False, use_box=False):
-        # TODO(@not-so-fat) support categorical values
-        if use_box:
-            plot_by_param_box(self.result_df, param_name, self.metric_name, use_logscale)
-        else:
-            plot_by_param(self.result_df, param_name, self.metric_name, use_logscale)
+    def plot_by_param(self, param_name):
+        return plot_by_param(self.result_df, param_name, self.metric_name, self.param_names)
 
     def get_summary(self):
         print("Best {} model".format(self.metric_name))
@@ -90,117 +85,45 @@ def create_result_df(cv_result, param_names):
 
 
 def plot_flat(result_df, param_names, metric_name):
+    melt_df = create_melt_df(result_df, param_names)
+    return plot_metric_and_time(melt_df, "index", metric_name, param_names)
+
+
+def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
+    base = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
+        x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
+        yError="std_value", color="variable"
+    )
+    lines = base.mark_line()
+    points = base.mark_circle()
+    error = base.mark_errorband()
+    time = alt.Chart(melt_df[melt_df["variable"].isin(["fit_time"])]).mark_bar().encode(
+        x=column_x, y=alt.Y("value", title="fit time (sec)"),
+        yError="std_value", tooltip=["param_{}".format(param_name) for param_name in param_names]
+    )
+    return alt.vconcat(
+        (lines + points + error).properties(height=150, width=400),
+        time.properties(height=150, width=400)
+    ).resolve_scale(x="shared")
+
+
+def plot_by_param(result_df, param_name, metric_name, param_names):
+    melt_df = create_melt_df(result_df, param_names)
+    melt_df = melt_df.sort_values(by="param_{}".format(param_name))
+    return plot_metric_and_time(melt_df, "param_{}".format(param_name), metric_name, param_names)
+
+
+def create_melt_df(result_df, param_names):
     plot_df = result_df.sort_values(by="validation_score")
-    point_text = ["\n".join(["{}: {}".format(
-            param_name, row["param_{}".format(param_name)]) for param_name in param_names])
-                 for index, row in plot_df.iterrows()]
-    training_line = graph_objs.Scatter(x=point_text, y=plot_df.training_score, yaxis="y2",
-            mode="lines+markers", name="training", line=dict(color=COLOR_TRAINING), marker=dict(color=COLOR_TRAINING))
-    validation_line = graph_objs.Scatter(x=point_text, y=plot_df.validation_score,  yaxis="y2",
-            mode="lines+markers", name="validation", line=dict(color=COLOR_VALIDATION), marker=dict(color=COLOR_VALIDATION))
-    time_bar = graph_objs.Bar(x=point_text, y=plot_df.fit_time, name="time", marker=dict(color=COLOR_TIME))
-    layout = graph_objs.Layout(
-        height=600, width=800,
-        title="training/validation {}".format(metric_name),
-        xaxis=dict(title="", showgrid=False, showticklabels=False, zeroline=False),
-        yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=True, zeroline=True),
-        hovermode="x"
+    plot_df["index"] = range(len(plot_df))
+    plot_df["index"] = range(len(plot_df))
+    melt_df1 = plot_df.melt(["index"] + ["param_{}".format(param_name) for param_name in param_names],
+                            ["training_score", "validation_score", "fit_time"])
+    melt_df2 = plot_df.melt(["index"], ["std_training_score", "std_validation_score", "std_fit_time"]).rename(
+        columns={"value": "std_value"}
     )
-    fig = graph_objs.Figure(data=[training_line, validation_line, time_bar], layout=layout)
-    iplot(fig, show_link=False)
-
-
-def plot_by_param(result_df, param_name, metric_name, logscale_param=False):
-    COLOR_DICT = {
-        "training_score": "blue",
-        "validation_score": "red",
-        "fit_time": "green"
-    }
-    COLOR_OP_DICT = {
-        "training_score": "rgba(0, 0, 150, 0.2)",
-        "validation_score": "rgba(150, 0, 0, 0.2)",
-        "fit_time": "rgba(0, 150, 0, 0.5)"
-    }
-    AXIS_DICT = {
-        "training_score": "y2",
-        "validation_score": "y2",
-        "fit_time": "y"
-    }
-
-    def _get_trace_for_mean(mean_value, name, yaxis, color):
-        xmin, xmax = (result_df["param_{}".format(param_name)].min(), result_df["param_{}".format(param_name)].max()) \
-            if _is_numeric(result_df["param_{}".format(param_name)][0]) \
-            else (0, len(result_df["param_{}".format(param_name)].unique()))
-        return graph_objs.Scatter(
-            x=[xmin, xmax],
-            y=[mean_value, mean_value], name="mean({})".format(name), yaxis=yaxis, line=dict(color=color, dash="dash"),
-            mode="lines", showlegend=False
-        )
-
-    def _get_trace_for_line_with_lb_ub(x_array, y_array, std_array, name, yaxis, color, color_std):
-        return (
-            graph_objs.Scatter(x=x_array, y=y_array, name=name, yaxis=yaxis, marker=dict(color=color),
-                               mode="lines+markers"),
-            graph_objs.Scatter(
-                x=x_array, y=y_array - std_array, name="{}_lb".format(name), yaxis=yaxis, line=dict(color=color_std),
-                showlegend=False),
-            graph_objs.Scatter(
-                x=x_array, y=y_array + std_array, name="{}_ub".format(name), yaxis=yaxis, line=dict(color=color_std),
-                fillcolor=color_std, fill='tonexty', showlegend=False)
-        )
-
-    result_df = result_df.sort_values(by="param_{}".format(param_name))
-    x_array = result_df["param_{}".format(param_name)].values
-    names = ["training_score", "validation_score", "fit_time"]
-    line_trace = {}
-    lb_trace = {}
-    ub_trace = {}
-    mean_trace = {}
-    for name in names:
-        line_trace[name], lb_trace[name], ub_trace[name] = _get_trace_for_line_with_lb_ub(
-            x_array, result_df[name].values, result_df["std_{}".format(name)].values, name,
-            AXIS_DICT[name], COLOR_DICT[name], COLOR_OP_DICT[name])
-        mean_trace[name] = _get_trace_for_mean(result_df[name].mean(), name, AXIS_DICT[name], COLOR_DICT[name])
-    layout = graph_objs.Layout(
-        width=800,
-        height=600,
-        title="{} / computation time vs {}".format(metric_name, param_name),
-        xaxis=dict(title=param_name, showgrid=True, showticklabels=True, zeroline=False,
-                   type='log' if logscale_param else 'linear'),
-        yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False),
-        hovermode="x"
-    )
-    fig = graph_objs.Figure(
-        data=sum(
-            [[line_trace[name], lb_trace[name], ub_trace[name], mean_trace[name]]
-             for name in reversed(names)], []),
-        layout=layout)
-    iplot(fig, show_link=False)
-
-
-def plot_by_param_box(result_df, param_name, metric_name, logscale_param=False):
-    training_scatter = graph_objs.Box(
-            x=result_df["param_{}".format(param_name)], y=result_df.training_score,
-            name="training", yaxis="y2", marker=dict(color=COLOR_TRAINING))
-    validation_scatter = graph_objs.Box(
-            x=result_df["param_{}".format(param_name)], y=result_df.validation_score,
-            name="validation", yaxis="y2", marker=dict(color=COLOR_VALIDATION))
-    computation_time = graph_objs.Box(
-            x=result_df["param_{}".format(param_name)], y=result_df.fit_time,
-            name="time", marker=dict(color=COLOR_TIME))
-    layout = graph_objs.Layout(
-        width=800,
-        height=600,
-        title="{} / computation time vs {}".format(metric_name, param_name),
-        xaxis=dict(title=param_name, showgrid=True, showticklabels=True, zeroline=False, type='log' if logscale_param else 'linear'),
-        yaxis2=dict(title=metric_name, domain=[0.5, 1.0], showgrid=True, zeroline=True),
-        yaxis=dict(title="computation time (sec)", domain=[0.0, 0.5], showgrid=False),
-        hovermode="x"
-    )
-    fig = graph_objs.Figure(data=[training_scatter, validation_scatter, computation_time], layout=layout)
-    iplot(fig, show_link=False)
+    melt_df2["variable"] = melt_df2["variable"].str.replace("std_", "")
+    return melt_df1.merge(melt_df2, on=["index", "variable"])
 
 
 def get_parameter_wise_stat(result_df, param_name):

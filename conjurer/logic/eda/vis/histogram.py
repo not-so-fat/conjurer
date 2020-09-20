@@ -1,6 +1,7 @@
 import logging
 
 import altair as alt
+from pandas.api import types
 
 from conjurer.logic.eda.vis import (
     binned_bar,
@@ -20,8 +21,11 @@ def plot_histogram(values, num_bins=50, normalize=False, minv=None, maxv=None):
     if len(bin_df.columns) > 3:
         return binned_bar.plot_bar_with_binned(bin_df, bin_df.columns[0], bin_df.columns[1], column_y)
     else:
-        return alt.Chart(bin_df).mark_bar().encode(x="{}:N".format(bin_df.columns[0]), y=column_y)\
-            .properties(height=200, width=800).interactive()
+        args = {} if types.is_integer_dtype(values.dtype) else dict(sort="-y")
+        return alt.Chart(bin_df).mark_bar().encode(
+            x=alt.X("{}:N".format(bin_df.columns[0]), **args),
+            y=column_y
+        ).properties(height=200, width=800).interactive()
 
 
 def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False):
