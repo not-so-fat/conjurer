@@ -41,7 +41,10 @@ class CVAnalyzer(object):
         return dict(
             training=best_model_row.training_score.values[0],
             validation=best_model_row.validation_score.values[0],
-            parameters={param_name: best_model_row["param_{}".format(param_name)].values[0] for param_name in self.param_names}
+            parameters={
+                param_name: best_model_row["param_{}".format(param_name)].values[0]
+                for param_name in self.param_names
+            }
         )
 
     def get_param_stat_df(self):
@@ -153,5 +156,4 @@ def _transform_param_values_for_groupby(value):
 
 
 def _is_numeric(obj):
-    return True if obj is not None and \
-                   numpy.issubdtype(numpy.array([obj]).dtype, numpy.number) else False
+    return True if obj is not None and numpy.issubdtype(numpy.array([obj]).dtype, numpy.number) else False

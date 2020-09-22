@@ -17,9 +17,12 @@ def test_grid_cv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    param_grid = dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    model = ml.tune_cv("linear_model", "cl", df_training, target_column, feature_columns,
-                       cv_args=dict(cv_type="grid", param_dict=param_grid))
+    cv_obj = ml.get_default_cv("linear_model", "cl", search_type="grid")
+    cv_obj.parameter_grid={
+        "ml__penalty": ["l1", "l2"],
+        "ml__C": [1e-5, 1e-3, 1e-1]
+    }
+    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 
@@ -28,7 +31,8 @@ def test_random_cv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = False
     target_column = utils.get_target_column(is_cl)
-    model = ml.tune_cv("lightgbm", "rg", df_training, target_column, feature_columns, scoring="r2")
+    cv_obj = ml.get_default_cv("linear_model", "rg", "r2")
+    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 
@@ -37,9 +41,12 @@ def test_grid_sv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    param_grid = dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    model = ml.tune_sv("linear_model", "cl", df_training, target_column, feature_columns,
-                       ratio_training=0.8, cv_args=dict(cv_type="grid", param_dict=param_grid))
+    cv_obj = ml.get_default_cv("linear_model", "cl", search_type="grid")
+    cv_obj.parameter_grid={
+        "ml__penalty": ["l1", "l2"],
+        "ml__C": [1e-5, 1e-3, 1e-1]
+    }
+    model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 
@@ -48,8 +55,8 @@ def test_random_sv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = False
     target_column = utils.get_target_column(is_cl)
-    model = ml.tune_sv("lightgbm", "rg", df_training, target_column, feature_columns,
-                       df_validation=df_validation, scoring="r2")
+    cv_obj = ml.get_default_cv("linear_model", "rg", "r2")
+    model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, df_validation=df_validation)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 

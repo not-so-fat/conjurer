@@ -3,84 +3,89 @@ from tests.ml import utils
 
 
 def test_lm_cv_grid():
-    test_hps = dict(
-        penalty=["l1"],
-        C=[1e-5, 1e-3, 1e-1]
-    )
-    cv = ml.get_cv("linear_model", "cl", cv_type="grid", param_dict=test_hps)
+    cv = ml.get_default_cv("linear_model", "cl", search_type="grid")
+    cv.param_grid = {
+        "ml__penalty": ["l1"],
+        "ml__C": [1e-5, 1e-3, 1e-1]
+    }
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lm_cv_random():
-    cv = ml.get_cv("linear_model", "cl", cv_type="random", n_iter=2)
+    cv = ml.get_default_cv("linear_model", "cl", search_type="random")
+    cv.n_iter = 2
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lightgbm_cv_grid():
-    test_hps = dict(
-        num_leaves=[10],
-        feature_fraction=[0.1],
-        learning_rate=[0.01],
-        ratio_min_data_in_leaf=[None, 0.005, 0.01]
-    )
-    cv = ml.get_cv("lightgbm", "cl", cv_type="grid", param_dict=test_hps)
+    cv = ml.get_default_cv("lightgbm", "cl", search_type="grid")
+    cv.param_grid = {
+        "ml__num_leaves": [10],
+        "ml__feature_fraction": [0.1],
+        "ml__learning_rate": [0.01],
+        "ml__ratio_min_data_in_leaf": [None, 0.005, 0.01]
+    }
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lightgbm_cv_random():
-    cv = ml.get_cv("lightgbm", "cl", cv_type="random", n_iter=5)
+    cv = ml.get_default_cv("lightgbm", "cl", search_type="random")
+    cv.n_iter = 5
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lightgbm_cv_random_rg():
-    cv = ml.get_cv("lightgbm", "rg", cv_type="random", n_iter=5)
+    cv = ml.get_default_cv("lightgbm", "rg", search_type="random")
+    cv.n_iter = 5
     _test_basic_flow_sv_pandas1(cv, False)
     _test_basic_flow_sv_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
 
 
 def test_xgboost_cv_grid():
-    test_hps = dict(
-        colsample_bynode=[0.1],
-        learning_rate=[0.01],
-        ratio_min_child_weight=[None, 0.005, 0.01]
+    cv = ml.get_default_cv("xgboost", "rg", search_type="grid")
+    cv.param_grid = dict(
+        ml__colsample_bynode=[0.1],
+        ml__learning_rate=[0.01],
+        ml__ratio_min_child_weight=[None, 0.005, 0.01]
     )
-    cv = ml.get_cv("xgboost", "rg", cv_type="grid", param_dict=test_hps)
     _test_basic_flow_sv_pandas1(cv, False)
     _test_basic_flow_sv_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
 
 
 def test_xgboost_cv_random():
-    cv = ml.get_cv("xgboost", "cl", cv_type="random", n_iter=5)
+    cv = ml.get_default_cv("xgboost", "cl", search_type="random")
+    cv.n_iter = 5
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_random_forest_cv_grid():
-    test_hps = dict(
-        max_depth=[2],
-        n_estimators=[100],
-        max_features=["auto"],
-        min_samples_leaf=[0.01, 0.05, 0.1]
+    cv = ml.get_default_cv("random_forest", "cl", search_type="grid")
+    cv.param_grid = dict(
+        ml__max_depth=[2],
+        ml__n_estimators=[100],
+        ml__max_features=["auto"],
+        ml__min_samples_leaf=[0.01, 0.05, 0.1]
     )
-    cv = ml.get_cv("random_forest", "cl", cv_type="grid", param_dict=test_hps)
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_random_forest_cv_random():
-    cv = ml.get_cv("random_forest", "rg", cv_type="random", n_iter=5)
+    cv = ml.get_default_cv("random_forest", "rg", search_type="random")
+    cv.n_iter = 5
     _test_basic_flow_sv_pandas1(cv, False)
     _test_basic_flow_sv_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
