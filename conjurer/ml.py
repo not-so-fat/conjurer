@@ -13,7 +13,7 @@ GridSearchCV = pandas_cv.GridSearchCV
 CVAnalyzer = cv_analyzer.CVAnalyzer
 
 
-def get_default_cv(ml_type, problem_type, scoring=None, search_type="random", param_dict=None):
+def get_default_cv(ml_type, problem_type, scoring=None, search_type="random"):
     """
     Get pandas-I/F [Randomized|Grid]SearchCV object with default search parameters and preprocessing
     Args:
@@ -25,7 +25,7 @@ def get_default_cv(ml_type, problem_type, scoring=None, search_type="random", pa
     Returns:
         RandomizedSearchCV or GridSearchCV
     """
-    return ml_tuner.get_cv(ml_type, problem_type, scoring, search_type, param_dict)
+    return ml_tuner.get_cv(ml_type, problem_type, scoring, search_type)
 
 
 def estimate_std(actual, predicted, metric, n_bootstrap=10, n_samples=None):

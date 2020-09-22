@@ -17,10 +17,11 @@ def test_grid_cv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    cv_obj = ml.get_default_cv(
-        "linear_model", "cl", search_type="grid",
-        param_dict=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    )
+    cv_obj = ml.get_default_cv("linear_model", "cl", search_type="grid")
+    cv_obj.parameter_grid={
+        "ml__penalty": ["l1", "l2"],
+        "ml__C": [1e-5, 1e-3, 1e-1]
+    }
     model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
@@ -40,9 +41,11 @@ def test_grid_sv(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    cv_obj = ml.get_default_cv(
-        "linear_model", "cl", search_type="grid", param_dict=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    )
+    cv_obj = ml.get_default_cv("linear_model", "cl", search_type="grid")
+    cv_obj.parameter_grid={
+        "ml__penalty": ["l1", "l2"],
+        "ml__C": [1e-5, 1e-3, 1e-1]
+    }
     model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)

@@ -36,7 +36,7 @@ class RandomizedSearchCV(model_selection.RandomizedSearchCV):
             **kwargs: Other keyword arguments for original `fit`
 
         Returns:
-            sklearn_cv_pandas.Model
+            conjurer.ml.Model
         """
         x, y, num_training, num_validation = _split_for_sv(
             df_training, target_column, feature_columns, df_validation, ratio_training)
@@ -57,7 +57,7 @@ class RandomizedSearchCV(model_selection.RandomizedSearchCV):
             **kwargs: Other keyword arguments for original `fit`
 
         Returns:
-            sklearn_cv_pandas.Model
+            conjurer.ml.Model
         """
         df = df.sample(len(df))  # shuffle
         x = df[feature_columns].values
@@ -87,7 +87,7 @@ class GridSearchCV(model_selection.GridSearchCV):
             **kwargs: Other keyword arguments for original `fit`
 
         Returns:
-            sklearn_cv_pandas.Model
+            conjurer.ml.Model
         """
         x, y, num_training, num_validation = _split_for_sv(
             df_training, target_column, feature_columns, df_validation, ratio_training)
@@ -108,7 +108,7 @@ class GridSearchCV(model_selection.GridSearchCV):
             **kwargs: Other keyword arguments for original `fit`
 
         Returns:
-            sklearn_cv_pandas.Model
+            conjurer.ml.Model
         """
         df = df.sample(len(df))  # shuffle
         x = df[feature_columns].values
