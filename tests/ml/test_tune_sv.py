@@ -13,11 +13,18 @@ def setup():
     return df_training, df_validation, df_test, feature_columns
 
 
+def tune_sv(ml_type, problem_type, scoring, df_training, target_column, feature_columns,
+            ratio_training=None, df_validation=None):
+    cv_obj = ml.get_default_cv(ml_type, problem_type, scoring)
+    return cv_obj.fit_sv_pandas(df_training, target_column, feature_columns,
+                                ratio_training=ratio_training, df_validation=df_validation)
+
+
 def test_default_cl(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = _get_target_column(is_cl)
-    model = ml.tune_sv("lightgbm", "cl", df_training, target_column, feature_columns, ratio_training=0.8)
+    model = tune_sv("lightgbm", "cl", None, df_training, target_column, feature_columns, ratio_training=0.8)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -25,8 +32,7 @@ def test_default_rg(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = False
     target_column = _get_target_column(is_cl)
-    model = ml.tune_sv("xgboost", "rg", df_training, target_column, feature_columns,
-                       df_validation=df_validation)
+    model = tune_sv("xgboost", "rg", None, df_training, target_column, feature_columns, df_validation=df_validation)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -34,9 +40,7 @@ def test_change_scorer_cl(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = _get_target_column(is_cl)
-    model = ml.tune_sv(
-        "random_forest", "cl", df_training, target_column, feature_columns,
-        ratio_training=0.8, scoring="f1")
+    model = tune_sv( "random_forest", "cl", "f1", df_training, target_column, feature_columns, ratio_training=0.8)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -44,9 +48,10 @@ def test_customized_cv_cl(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = _get_target_column(is_cl)
-    param_grid=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    model = ml.tune_sv("linear_model", "cl", df_training, target_column, feature_columns,
-                       df_validation=df_validation, cv_args=dict(cv_type="grid", param_dict=param_grid))
+    cv_obj = ml.get_default_cv(
+        "linear_model", "cl", search_type="grid", param_dict=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
+    )
+    model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, df_validation=df_validation)
     utils.assert_prediction(model, df_test, is_cl)
 
 

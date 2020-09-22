@@ -12,11 +12,16 @@ def setup():
     return df_training, df_test, feature_columns
 
 
+def tune_cv(ml_type, problem_type, scoring, df_training, target_column, feature_columns):
+    cv_obj = ml.get_default_cv(ml_type, problem_type, scoring)
+    return cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
+
+
 def test_default_cl(setup):
     df_training, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    model = ml.tune_cv("lightgbm", "cl", df_training, target_column, feature_columns)
+    model = tune_cv("lightgbm", "cl", None, df_training, target_column, feature_columns)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -24,7 +29,7 @@ def test_default_rg(setup):
     df_training, df_test, feature_columns = setup
     is_cl = False
     target_column = utils.get_target_column(is_cl)
-    model = ml.tune_cv("xgboost", "rg", df_training, target_column, feature_columns)
+    model = tune_cv("xgboost", "rg", None, df_training, target_column, feature_columns)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -32,8 +37,7 @@ def test_change_scorer_cl(setup):
     df_training, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    model = ml.tune_cv(
-        "random_forest", "cl", df_training, target_column, feature_columns, scoring="f1")
+    model = tune_cv("random_forest", "cl", "f1", df_training, target_column, feature_columns)
     utils.assert_prediction(model, df_test, is_cl)
 
 
@@ -41,7 +45,8 @@ def test_customized_cv_cl(setup):
     df_training, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
-    param_grid=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
-    model = ml.tune_cv("linear_model", "cl", df_training, target_column, feature_columns,
-                       cv_args=dict(cv_type="grid", param_dict=param_grid))
+    cv_obj = ml.get_default_cv(
+        "linear_model", "cl", search_type="grid", param_dict=dict(penalty=["l1", "l2"], C=[1e-5, 1e-3, 1e-1])
+    )
+    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
     utils.assert_prediction(model, df_test, is_cl)

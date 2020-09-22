@@ -1,5 +1,3 @@
-
-
 class TunerConfig(object):
     def __init__(self, estimator_dict, distributions_rg, distributions_cl, grid_rg, grid_cl):
         self.estimator_dict = estimator_dict
