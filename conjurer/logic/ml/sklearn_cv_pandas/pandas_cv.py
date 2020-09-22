@@ -5,7 +5,7 @@ from operator import mul
 import numpy
 from sklearn import model_selection
 
-from sklearn_cv_pandas import model
+from . import model
 
 
 logger = logging.getLogger(__name__)
