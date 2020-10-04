@@ -15,13 +15,18 @@ class RandomizedSearchCV(model_selection.RandomizedSearchCV):
     """
     sklearn.model_selection.RandomizedSearchCV with pandas DataFrame interface
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, estimator, param_distributions, n_iter=10, scoring=None, n_jobs=None, iid='deprecated',
+                 refit=True, cv=None, verbose=10, pre_dispatch='2*n_jobs', random_state=None, error_score=numpy.nan,
+                 return_train_score=True):
         """
-        The same manner as [sklearn.model_selection.RandomizedSearchCV](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html)
+        The same manner as [sklearn.model_selection.RandomizedSearchCV](
+        https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html)
         """
-        kwargs["return_train_score"] = True
-        kwargs["verbose"] = 10
-        super(RandomizedSearchCV, self).__init__(*args, **kwargs)
+        super(RandomizedSearchCV, self).__init__(
+            estimator, param_distributions, n_iter=n_iter, scoring=scoring, n_jobs=n_jobs, iid=iid,
+            refit=refit, cv=cv, verbose=verbose, pre_dispatch=pre_dispatch, random_state=random_state,
+            error_score=error_score, return_train_score=return_train_score
+        )
 
     def fit_sv_pandas(self, df_training, target_column, feature_columns,
                       df_validation=None, ratio_training=None, **kwargs):
@@ -69,10 +74,15 @@ class RandomizedSearchCV(model_selection.RandomizedSearchCV):
 
 
 class GridSearchCV(model_selection.GridSearchCV):
-    def __init__(self, *args, **kwargs):
-        kwargs["return_train_score"] = True
-        kwargs["verbose"] = 10
-        super(GridSearchCV, self).__init__(*args, **kwargs)
+    def __init__(self, estimator, param_grid, scoring=None,
+                 n_jobs=None, iid='deprecated', refit=True, cv=None,
+                 verbose=10, pre_dispatch='2*n_jobs',
+                 error_score=numpy.nan, return_train_score=True):
+        super(GridSearchCV, self).__init__(
+            estimator, param_grid, scoring=scoring, n_jobs=n_jobs, iid=iid,
+            refit=refit, cv=cv, verbose=verbose, pre_dispatch=pre_dispatch,
+            error_score=error_score, return_train_score=return_train_score
+        )
 
     def fit_sv_pandas(self, df_training, target_column, feature_columns,
                       df_validation=None, ratio_training=None, **kwargs):
