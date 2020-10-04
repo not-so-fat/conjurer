@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/not-so-fat/conjurer",
     install_requires=[
         "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "IPython",
-        "lightgbm", "xgboost", "gbm_autosplit>=0.0.1", "networkx"
+        "lightgbm", "xgboost", "gbm_autosplit>=0.0.2", "networkx"
     ],
     packages=setuptools.find_packages(),
     classifiers=[
