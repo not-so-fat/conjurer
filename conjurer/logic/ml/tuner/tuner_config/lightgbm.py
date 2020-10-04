@@ -19,9 +19,9 @@ estimator = {
 
 grid_rg = dict(
     num_leaves=[10, 20, 40],
-    feature_fraction=[0.1, 0.5],
+    colsample_bytree=[0.1, 0.5],
     learning_rate=[0.01, 0.05, 0.1],
-    ratio_min_data_in_leaf=[None, 0.005, 0.01]
+    ratio_min_child_samples=[None, 0.005, 0.01]
 )
 grid_cl = {
     **grid_rg,
@@ -29,9 +29,9 @@ grid_cl = {
 }
 distributions_rg = dict(
     num_leaves=list(range(10, 101)),
-    feature_fraction=stats.uniform(0.05, 0.95),
+    colsample_bytree=stats.uniform(0.05, 0.95),
     learning_rate=stats.uniform(0.01, 0.5),
-    ratio_min_data_in_leaf=stats.uniform(0.0, 0.05)
+    ratio_min_child_samples=stats.uniform(0.0, 0.05)
 )
 distributions_cl = {
     **distributions_rg,

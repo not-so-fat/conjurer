@@ -25,9 +25,9 @@ def test_lightgbm_cv_grid():
     cv = ml.get_default_cv("lightgbm", "cl", search_type="grid")
     cv.param_grid = {
         "ml__num_leaves": [10],
-        "ml__feature_fraction": [0.1],
+        "ml__colsample_bytree": [0.1],
         "ml__learning_rate": [0.01],
-        "ml__ratio_min_data_in_leaf": [None, 0.005, 0.01]
+        "ml__ratio_min_child_samples": [None, 0.005, 0.01]
     }
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)
