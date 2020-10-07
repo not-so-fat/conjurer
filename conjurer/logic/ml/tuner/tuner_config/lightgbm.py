@@ -21,7 +21,7 @@ grid_rg = dict(
     num_leaves=[10, 20, 40],
     colsample_bytree=[0.1, 0.5],
     learning_rate=[0.01, 0.05, 0.1],
-    ratio_min_child_samples=[None, 0.005, 0.01]
+    min_child_samples=[10, 20, 100]
 )
 grid_cl = {
     **grid_rg,
@@ -31,7 +31,7 @@ distributions_rg = dict(
     num_leaves=list(range(10, 101)),
     colsample_bytree=stats.uniform(0.05, 0.95),
     learning_rate=stats.uniform(0.01, 0.5),
-    ratio_min_child_samples=stats.uniform(0.0, 0.05)
+    min_child_samples=list(range(101))
 )
 distributions_cl = {
     **distributions_rg,
