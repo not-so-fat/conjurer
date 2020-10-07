@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="conjurer",
-    version="0.0.13",
+    version="0.0.15",
     author="@not-so-fat",
     author_email="conjurer.not.so.fat@gmail.com",
     description="Python library to help you to perform magic on your data analytics project",
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/not-so-fat/conjurer",
     install_requires=[
         "pandas>=1.1", "numpy", "scipy", "sklearn", "altair", "IPython",
-        "lightgbm", "xgboost", "gbm_autosplit>=0.0.1", "networkx"
+        "lightgbm", "xgboost", "gbm_autosplit>=0.0.2", "networkx"
     ],
     packages=setuptools.find_packages(),
     classifiers=[
