@@ -23,6 +23,8 @@ def read_csv(filepath_or_buffer, **kwargs):
 def convert_integer_columns(df):
     for c in df.columns:
         if numpy.issubdtype(df.dtypes[c], numpy.number):
+            if all(numpy.isnan(df[c])):
+                continue
             integer_series = pandas.Series(df[c], dtype="Int64")
             if numpy.equal(abs(integer_series - df[c]).max(), 0):
                 df[c] = integer_series

@@ -27,7 +27,7 @@ def test_lightgbm_cv_grid():
         "ml__num_leaves": [10],
         "ml__colsample_bytree": [0.1],
         "ml__learning_rate": [0.01],
-        "ml__ratio_min_child_samples": [None, 0.005, 0.01]
+        "ml__min_child_samples": [0, 20, 100]
     }
     _test_basic_flow_sv_pandas1(cv, True)
     _test_basic_flow_sv_pandas2(cv, True)

@@ -1,3 +1,13 @@
+from typing import Union
+from datetime import (
+    date,
+    datetime
+)
+
+import pandas
+import altair
+from pandas._typing import FilePathOrBuffer
+
 from conjurer.logic.eda import check
 from conjurer.logic.eda.load import (
     pandas_csv,
@@ -9,7 +19,11 @@ from conjurer.logic.eda.vis import (
 )
 
 
-def read_csv(buffer_or_filepath, **kwargs):
+StrOrList = Union[str, list]
+Orderable = Union[int, float, datetime, date]
+
+
+def read_csv(buffer_or_filepath: FilePathOrBuffer, **kwargs) -> pandas.DataFrame:
     """
     Load CSV as pandas.DataFrame with Int64 / datetime64 column inference
     Args:
@@ -22,7 +36,7 @@ def read_csv(buffer_or_filepath, **kwargs):
     return pandas_csv.read_csv(buffer_or_filepath, **kwargs)
 
 
-def check_stats(df, skip_histogram=False):
+def check_stats(df: pandas.DataFrame, skip_histogram: bool = False) -> pandas.DataFrame:
     """
     Calculate basic statistics for pandas.DataFrame
     Args:
@@ -37,7 +51,7 @@ def check_stats(df, skip_histogram=False):
     return check.check_stats(df, skip_histogram)
 
 
-def get_unique_values(df, columns):
+def get_unique_values(df: pandas.DataFrame, columns: StrOrList) -> set:
     """
     Get unique values (not null) for column(s) in pandas.DataFrame as set
     Args:
@@ -54,7 +68,7 @@ def get_unique_values(df, columns):
     return check.get_unique_values(df, columns)
 
 
-def get_columns_in_dfs(df_list, name_list):
+def get_columns_in_dfs(df_list: list, name_list: list) -> pandas.DataFrame:
     """
     Summarize df names and column name in multiple pandas.DataFrame
     Args:
@@ -67,7 +81,9 @@ def get_columns_in_dfs(df_list, name_list):
     return check.get_columns_in_dfs(df_list, name_list)
 
 
-def get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print=True):
+def get_fk_coverage(
+        fk_df: pandas.DataFrame, k_df: pandas.DataFrame, fk_columns: StrOrList, k_columns: StrOrList,
+        do_print: bool = True) -> float:
     """
     Check how many keys in `fk_df.fk_columns` exists in `k_df.k_columns`
     Args:
@@ -83,7 +99,8 @@ def get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print=True):
     return check.get_fk_coverage(fk_df, k_df, fk_columns, k_columns, do_print)
 
 
-def plot_histogram(series, num_bins=50, normalize=False, minv=None, maxv=None):
+def plot_histogram(series: pandas.Series, num_bins: int = 50, normalize: bool = False,
+                   minv: Orderable = None, maxv: Orderable = None) -> altair.Chart:
     """
     Plot histogram with altair
     Args:
@@ -99,7 +116,7 @@ def plot_histogram(series, num_bins=50, normalize=False, minv=None, maxv=None):
     return histogram.plot_histogram(series, num_bins, normalize, minv, maxv)
 
 
-def plot_scatter(df, column_x, column_y, **kwargs):
+def plot_scatter(df: pandas.DataFrame, column_x: str, column_y: str, **kwargs) -> altair.Chart:
     """
     Plot scatter plot with altair. If sample size is too large, plot heatmap instead
     Args:
@@ -119,7 +136,9 @@ def plot_scatter(df, column_x, column_y, **kwargs):
     return scatter.plot_scatter(df, column_x, column_y, **kwargs)
 
 
-def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None, xmax=None, ymin=None, ymax=None):
+def plot_heatmap(df: pandas.DataFrame, column_x: str, column_y: str, num_bins_x: int = 50, num_bins_y: int = 50,
+                 xmin: Orderable = None, xmax: Orderable = None, ymin: Orderable = None, ymax: Orderable = None) \
+        -> altair.Chart:
     """
     Plot heatmap with altair.
     Args:

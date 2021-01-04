@@ -1,3 +1,6 @@
+from typing import Union
+from collections.abc import Callable
+
 import numpy
 from sklearn import utils
 
@@ -13,7 +16,8 @@ GridSearchCV = pandas_cv.GridSearchCV
 CVAnalyzer = cv_analyzer.CVAnalyzer
 
 
-def get_default_cv(ml_type, problem_type, scoring=None, search_type="random"):
+def get_default_cv(ml_type: str, problem_type: str, scoring=None, search_type: str="random")\
+        -> Union[GridSearchCV, RandomizedSearchCV]:
     """
     Get pandas-I/F [Randomized|Grid]SearchCV object with default search parameters and preprocessing
     Args:
@@ -28,7 +32,8 @@ def get_default_cv(ml_type, problem_type, scoring=None, search_type="random"):
     return ml_tuner.get_cv(ml_type, problem_type, scoring, search_type)
 
 
-def estimate_std(actual, predicted, metric, n_bootstrap=10, n_samples=None):
+def estimate_std(actual: numpy.array, predicted: numpy.array, metric: Callable,
+                 n_bootstrap: int = 10, n_samples: int = None):
     """
     Estimate standard deviation for the metric in specified dataset by bootstrapping
     Args:
