@@ -112,6 +112,7 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
 
 def plot_by_param(result_df, param_name, metric_name, param_names):
     melt_df = create_melt_df(result_df, param_names)
+    melt_df = melt_df.groupby(by="param_{}".format(param_name)).mean()
     melt_df = melt_df.sort_values(by="param_{}".format(param_name))
     return plot_metric_and_time(melt_df, "param_{}".format(param_name), metric_name, param_names)
 
