@@ -6,10 +6,8 @@ from IPython.core.display import display
 import altair as alt
 
 
-COLOR_TRAINING = 'blue'
-COLOR_VALIDATION = 'red'
-COLOR_TIME = 'green'
 logger = logging.getLogger(__name__)
+METRIC_MINIMIZE = False  # sklearn.metrics.SCORERS are to be maximized
 
 
 class CVAnalyzer(object):
@@ -17,7 +15,6 @@ class CVAnalyzer(object):
         self.param_names = get_param_names(pipeline.cv_results_)
         self.result_df = create_result_df(pipeline.cv_results_, self.param_names)
         self.metric_name = pipeline.scoring
-        self.metric_minimize = False  # sklearn.metrics.SCORERS are to be maximized
         self._validate()
 
     def plot_flat(self):
@@ -39,7 +36,7 @@ class CVAnalyzer(object):
 
     def get_best_model_info(self):
         best_model_row = self.result_df.sort_values(
-                by="validation_score", ascending=self.metric_minimize).head(1)
+                by="validation_score", ascending=METRIC_MINIMIZE).head(1)
         return dict(
             training=best_model_row.training_score.values[0],
             validation=best_model_row.validation_score.values[0],
@@ -104,7 +101,7 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
     points = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color="variable"
     ).mark_circle(opacity=0.4)
-    mean_df = melt_df.groupby(by=["variable", column_x], dropna=False).mean().reset_index().sort_values(by=column_x)
+    mean_df = melt_df.groupby(by=["variable", column_x]).mean().reset_index().sort_values(by=column_x)
     mean_chart = alt.Chart(
         mean_df[mean_df["variable"].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
@@ -159,7 +156,9 @@ def get_param_names(cv_results):
 
 
 def _transform_param_values_for_groupby(value):
-    if isinstance(value, list):
+    if value is None:
+        return "None"
+    elif isinstance(value, list):
         return str(value)
     else:
         return value
