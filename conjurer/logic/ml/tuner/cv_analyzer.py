@@ -6,10 +6,8 @@ from IPython.core.display import display
 import altair as alt
 
 
-COLOR_TRAINING = 'blue'
-COLOR_VALIDATION = 'red'
-COLOR_TIME = 'green'
 logger = logging.getLogger(__name__)
+METRIC_MINIMIZE = False  # sklearn.metrics.SCORERS are to be maximized
 
 
 class CVAnalyzer(object):
@@ -17,7 +15,6 @@ class CVAnalyzer(object):
         self.param_names = get_param_names(pipeline.cv_results_)
         self.result_df = create_result_df(pipeline.cv_results_, self.param_names)
         self.metric_name = pipeline.scoring
-        self.metric_minimize = False  # sklearn.metrics.SCORERS are to be maximized
         self._validate()
 
     def plot_flat(self):
@@ -33,11 +30,13 @@ class CVAnalyzer(object):
     def get_summary(self):
         print("Best {} model".format(self.metric_name))
         print(self.get_best_model_info())
-        print("Total training time: {} hours for {} params".format(self.result_df.fit_time.sum() / 3600, len(self.result_df)))
+        print("Total training time: {} hours for {} params".format(
+            self.result_df.fit_time.sum() / 3600, len(self.result_df)))
         display(self.get_param_stat_df())
 
     def get_best_model_info(self):
-        best_model_row = self.result_df.sort_values(by="validation_score", ascending=self.metric_minimize).head(1)
+        best_model_row = self.result_df.sort_values(
+                by="validation_score", ascending=METRIC_MINIMIZE).head(1)
         return dict(
             training=best_model_row.training_score.values[0],
             validation=best_model_row.validation_score.values[0],
@@ -50,7 +49,8 @@ class CVAnalyzer(object):
     def get_param_stat_df(self):
         return pandas.concat(
             [get_parameter_wise_stat(self.result_df, param_name)
-             for param_name in self.param_names], axis=0).sort_values(by="std (validation score)", ascending=False)
+             for param_name in self.param_names], axis=0).sort_values(
+                     by="std (validation score)", ascending=False)
 
     def _validate(self):
         def _warning(is_min):
@@ -72,7 +72,10 @@ class CVAnalyzer(object):
         
 def create_result_df(cv_result, param_names):
     values_dict = {
-        "param_{}".format(key): [_transform_param_values_for_groupby(elem[key]) for elem in cv_result["params"]]
+        "param_{}".format(key): [
+            _transform_param_values_for_groupby(elem[key]) 
+            for elem in cv_result["params"]
+        ]
         for key in param_names
     }
     values_dict["training_score"] = cv_result["mean_train_score"]
@@ -82,9 +85,11 @@ def create_result_df(cv_result, param_names):
     values_dict["std_validation_score"] = cv_result["std_test_score"]
     values_dict["std_fit_time"] = cv_result["std_fit_time"]
     return pandas.DataFrame(
-        values_dict, columns=["param_{}".format(key) for key in param_names] \
-                             + ["training_score", "validation_score", "fit_time",
-                                "std_training_score", "std_validation_score", "std_fit_time"])
+        values_dict, 
+        columns=["param_{}".format(key) for key in param_names] \
+                + ["training_score", "validation_score", "fit_time",
+                    "std_training_score", "std_validation_score", "std_fit_time"]
+    )
 
 
 def plot_flat(result_df, param_names, metric_name):
@@ -93,26 +98,28 @@ def plot_flat(result_df, param_names, metric_name):
 
 
 def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
-    base = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
+    points = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
+        x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color="variable"
+    ).mark_circle(opacity=0.4)
+    mean_df = melt_df.groupby(by=["variable", column_x]).mean().reset_index().sort_values(by=column_x)
+    mean_chart = alt.Chart(
+        mean_df[mean_df["variable"].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
-        yError="std_value", color="variable"
-    )
-    lines = base.mark_line()
-    points = base.mark_circle()
-    error = base.mark_errorband()
+        yError="std_value", color="variable")
+    lines = mean_chart.mark_line(strokeDash=[2, 2])
+    error = mean_chart.mark_errorband()
     time = alt.Chart(melt_df[melt_df["variable"].isin(["fit_time"])]).mark_bar().encode(
         x=column_x, y=alt.Y("value", title="fit time (sec)"),
         yError="std_value", tooltip=["param_{}".format(param_name) for param_name in param_names]
     )
     return alt.vconcat(
-        (lines + points + error).properties(height=150, width=400),
+        alt.layer(points, lines+error).properties(height=150, width=400),
         time.properties(height=150, width=400)
     ).resolve_scale(x="shared")
 
 
 def plot_by_param(result_df, param_name, metric_name, param_names):
     melt_df = create_melt_df(result_df, param_names)
-    melt_df = melt_df.sort_values(by="param_{}".format(param_name))
     return plot_metric_and_time(melt_df, "param_{}".format(param_name), metric_name, param_names)
 
 
@@ -149,7 +156,9 @@ def get_param_names(cv_results):
 
 
 def _transform_param_values_for_groupby(value):
-    if isinstance(value, list):
+    if value is None:
+        return "None"
+    elif isinstance(value, list):
         return str(value)
     else:
         return value
