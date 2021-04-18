@@ -104,7 +104,7 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
     points = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color="variable"
     ).mark_circle(opacity=0.4)
-    mean_df = melt_df.groupby(by=["variable", column_x], dropna=False).mean().reset_index()
+    mean_df = melt_df.groupby(by=["variable", column_x], dropna=False).mean().reset_index().sort_values(by=column_x)
     mean_chart = alt.Chart(
         mean_df[mean_df["variable"].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
@@ -123,8 +123,6 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
 
 def plot_by_param(result_df, param_name, metric_name, param_names):
     melt_df = create_melt_df(result_df, param_names)
-    melt_df = melt_df.groupby(by="param_{}".format(param_name)).mean()
-    melt_df = melt_df.sort_values(by="param_{}".format(param_name))
     return plot_metric_and_time(melt_df, "param_{}".format(param_name), metric_name, param_names)
 
 
