@@ -3,12 +3,12 @@ from collections.abc import Callable
 
 import numpy
 from sklearn import utils
+from sklearn_cv_pandas import pandas_cv
 
 from .logic.ml.tuner import (
     cv_analyzer,
     ml_tuner
 )
-from .logic.ml.sklearn_cv_pandas import pandas_cv
 
 
 RandomizedSearchCV = pandas_cv.RandomizedSearchCV

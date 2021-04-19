@@ -1,6 +1,7 @@
 .idea
 build
-conjurer_not_so_fat.egg-info
 dist
 *.egg-info
 __pycache__
+build_pydev.bat
+Dockerfile

@@ -1,0 +1,5 @@
+scipy==1.6.2
+altair==4.1.0
+IPython==7.22.0
+gbm_autosplit==0.0.5
+sklearn_cv_pandas==0.0.5
