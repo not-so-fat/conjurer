@@ -9,5 +9,3 @@ def plot_bar_with_binned(df, column_lb, column_ub, column_y, xname=None):
         y=alt.Y("{}:Q".format(column_y)),
         tooltip=[column_lb, column_ub, column_y]
     ).properties(height=200, width=800).interactive()
-
-

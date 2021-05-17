@@ -11,26 +11,32 @@ logger = logging.getLogger(__name__)
 
 
 def calc_column_stat(df):
-    concat_list = []
     df_size = len(df)
-    for column in df.columns:
+    output_column_names = [
+        "column_name", "dtype", "min", "max", "mean", "std", "ratio_na", 
+        "ratio_zero", "unique_count", "is_unique"
+    ]
+    def _calc_stat(column, df_size):
         unique_count = len(get_unique_values(df, column))
-        logger.info("...calculating {column} (dtype: {dtype})".format(
-            column=column, dtype=df.dtypes[column]))
-        concat_list.append(pandas.DataFrame({
-            "column_name": [column],
-            "dtype": df.dtypes[column],
-            "min": [df[column].min()] if _orderable(df.dtypes[column]) else [pandas.NA],
-            "max": [df[column].max()] if _orderable(df.dtypes[column]) else [pandas.NA],
-            "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
-            "std": [df[column].std()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
-            "ratio_na": [pandas.isnull(df[column]).sum() / float(len(df))],
-            "ratio_zero": [len(df[df[column]==0]) / float(len(df))]\
-                if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
-            "unique_count": [unique_count],
-            "is_unique": [unique_count == df_size]
-        }, columns=["column_name", "dtype", "min", "max", "mean", "std", "ratio_na", "ratio_zero", "unique_count", "is_unique"]))
-    return pandas.concat(concat_list, axis=0)
+        logger.info("...calculating {} (dtype: {})".format(column, df.dtypes[column]))
+        return pandas.DataFrame(
+            {
+                "column_name": [column],
+                "dtype": df.dtypes[column],
+                "min": [df[column].min()] if _orderable(df.dtypes[column]) else [pandas.NA],
+                "max": [df[column].max()] if _orderable(df.dtypes[column]) else [pandas.NA],
+                "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
+                "std": [df[column].std()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
+                "ratio_na": [pandas.isnull(df[column]).sum() / float(df_size)],
+                "ratio_zero": [len(df[df[column]==0]) / float(df_size)]\
+                    if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
+                "unique_count": [unique_count],
+                "is_unique": [unique_count == df_size]
+            },
+            columns=output_column_names
+        )
+
+    return pandas.concat([_calc_stat(c, df_size) for c in df.columns], axis=0)
 
 
 def get_unique_values(df, columns):
@@ -42,11 +48,17 @@ def get_unique_values(df, columns):
 
 
 def calculate_percentiles_for_df(df, column_list, ratio_list):
-    value_dic = {"name": ["min"] +
-                 ["{0:.2%}-percentile".format(ratio) for ratio in ratio_list]
-                 + ["max"]}
-    for column in column_list:
-        value_dic[column] = calculate_percentiles(df[column].values, ratio_list)
+    value_dic = {
+        **{
+            "name": ["min"] +
+                     ["{0:.2%}-percentile".format(ratio) for ratio in ratio_list]
+                     + ["max"]
+        },
+        **{
+            c: calculate_percentiles(df[column].values, ratio_list)
+            for c in column_list
+        }
+    }
     return pandas.DataFrame(value_dic, columns=["name"] + column_list).set_index("name")
 
 

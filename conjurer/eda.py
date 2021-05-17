@@ -82,8 +82,8 @@ def get_columns_in_dfs(df_list: list, name_list: list) -> pandas.DataFrame:
 
 
 def get_fk_coverage(
-        fk_df: pandas.DataFrame, k_df: pandas.DataFrame, fk_columns: StrOrList, k_columns: StrOrList,
-        do_print: bool = True) -> float:
+    fk_df: pandas.DataFrame, k_df: pandas.DataFrame, fk_columns: StrOrList, k_columns: StrOrList,
+    do_print: bool = True) -> float:
     """
     Check how many keys in `fk_df.fk_columns` exists in `k_df.k_columns`
     Args:
