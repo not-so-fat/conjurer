@@ -18,19 +18,21 @@ def plot_heatmap(df, column_x, column_y, num_bins_x=50, num_bins_y=50, xmin=None
     is_quantitative_y = binning.is_quantitative(df[column_y], num_bins_y)
     ft_df = binning.create_frequency_table_2d(
         df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
-    ft_df = ft_df[ft_df["frequency"] > 0]
+    ft_df = ft_df[ft_df[binning.FREQUENCY_CNAME] > 0]
     encode_args = _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y)
-    return alt.Chart(ft_df).mark_rect().encode(**encode_args).interactive() if is_quantitative_x or is_quantitative_y \
-        else alt.Chart(ft_df).mark_circle().encode(**encode_args).interactive()
+    title = "{} vs {} (Heatmap)".format(column_y, column_x)
+    chart = alt.Chart(ft_df).encode(**encode_args).properties(title=title)\
+        .configure_legend(orient="right", columns=1).interactive()
+    return chart.mark_rect() if is_quantitative_x or is_quantitative_y else chart.mark_circle()
 
 
 def _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y):
     x_tooltip = ["{}_lb".format(column_x), "{}_ub".format(column_x)] if is_quantitative_x else [column_x]
     y_tooltip = ["{}_lb".format(column_y), "{}_ub".format(column_y)] if is_quantitative_y else [column_y]
     common_args = dict(
-        size="frequency",
-        color=alt.Color("frequency", scale=alt.Scale(scheme="greys")),
-        tooltip=x_tooltip + y_tooltip + ["frequency"]
+        size=binning.FREQUENCY_CNAME,
+        color=alt.Color(binning.FREQUENCY_CNAME, scale=alt.Scale(scheme="greys")),
+        tooltip=x_tooltip + y_tooltip + [binning.FREQUENCY_CNAME]
     )
     x_args = dict(
         x=alt.X("{}_lb".format(column_x), title=column_x),
@@ -44,11 +46,12 @@ def _get_encode_args(column_x, column_y, is_quantitative_x, is_quantitative_y):
 
 
 def plot_points(df, column_x, column_y, xmin=None, xmax=None, ymin=None, ymax=None):
+    title = "{} vs {} (Scatter)".format(column_y, column_x)
     return alt.Chart(df).mark_circle().encode(
         x=alt.X(column_x, **_get_axis_args(df, column_x, xmin, xmax)),
         y=alt.Y(column_y, **_get_axis_args(df, column_y, ymin, ymax)),
         tooltip=[column_x, column_y]
-    ).interactive()
+    ).properties(title=title).interactive()
 
 
 def _get_axis_args(df, column, minv, maxv):

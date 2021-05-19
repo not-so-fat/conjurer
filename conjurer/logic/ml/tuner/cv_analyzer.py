@@ -8,6 +8,8 @@ import altair as alt
 
 logger = logging.getLogger(__name__)
 METRIC_MINIMIZE = False  # sklearn.metrics.SCORERS are to be maximized
+MELT_VARNAME = "data"
+HP_INDEX = "hyper parameters index"
 
 
 class CVAnalyzer(object):
@@ -94,28 +96,28 @@ def create_result_df(cv_result, param_names):
 
 def plot_flat(result_df, param_names, metric_name):
     melt_df = create_melt_df(result_df, param_names)
-    return plot_metric_and_time(melt_df, "index", metric_name, param_names)
+    return plot_metric_and_time(melt_df, HP_INDEX, metric_name, param_names)
 
 
 def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
-    points = alt.Chart(melt_df[melt_df["variable"].isin(["training_score", "validation_score"])]).encode(
-        x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color="variable"
+    points = alt.Chart(melt_df[melt_df[MELT_VARNAME].isin(["training_score", "validation_score"])]).encode(
+        x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color=MELT_VARNAME
     ).mark_circle(opacity=0.4)
-    mean_df = melt_df.groupby(by=["variable", column_x]).mean().reset_index().sort_values(by=column_x)
+    mean_df = melt_df.groupby(by=[MELT_VARNAME, column_x]).mean().reset_index().sort_values(by=column_x)
     mean_chart = alt.Chart(
-        mean_df[mean_df["variable"].isin(["training_score", "validation_score"])]).encode(
+        mean_df[mean_df[MELT_VARNAME].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
-        yError="std_value", color="variable")
+        yError="std_value", color=MELT_VARNAME)
     lines = mean_chart.mark_line(strokeDash=[2, 2])
     error = mean_chart.mark_errorband()
-    time = alt.Chart(melt_df[melt_df["variable"].isin(["fit_time"])]).mark_bar().encode(
+    time = alt.Chart(melt_df[melt_df[MELT_VARNAME].isin(["fit_time"])]).mark_bar().encode(
         x=column_x, y=alt.Y("value", title="fit time (sec)"),
         yError="std_value", tooltip=["param_{}".format(param_name) for param_name in param_names]
     )
     return alt.vconcat(
         alt.layer(points, lines+error).properties(height=150, width=400),
         time.properties(height=150, width=400)
-    ).resolve_scale(x="shared")
+    ).resolve_scale(x="shared").properties(title="Accuracy & Computation time")
 
 
 def plot_by_param(result_df, param_name, metric_name, param_names):
@@ -125,15 +127,16 @@ def plot_by_param(result_df, param_name, metric_name, param_names):
 
 def create_melt_df(result_df, param_names):
     plot_df = result_df.sort_values(by="validation_score")
-    plot_df["index"] = range(len(plot_df))
-    plot_df["index"] = range(len(plot_df))
-    melt_df1 = plot_df.melt(["index"] + ["param_{}".format(param_name) for param_name in param_names],
-                            ["training_score", "validation_score", "fit_time"])
-    melt_df2 = plot_df.melt(["index"], ["std_training_score", "std_validation_score", "std_fit_time"]).rename(
+    plot_df[HP_INDEX] = range(len(plot_df))
+    plot_df[HP_INDEX] = range(len(plot_df))
+    melt_df1 = plot_df.melt([HP_INDEX] + ["param_{}".format(param_name) for param_name in param_names],
+                            ["training_score", "validation_score", "fit_time"], var_name=MELT_VARNAME)
+    melt_df2 = plot_df.melt([HP_INDEX], ["std_training_score", "std_validation_score", "std_fit_time"], 
+                            var_name=MELT_VARNAME).rename(
         columns={"value": "std_value"}
     )
-    melt_df2["variable"] = melt_df2["variable"].str.replace("std_", "")
-    return melt_df1.merge(melt_df2, on=["index", "variable"])
+    melt_df2[MELT_VARNAME] = melt_df2[MELT_VARNAME].str.replace("std_", "")
+    return melt_df1.merge(melt_df2, on=[HP_INDEX, MELT_VARNAME])
 
 
 def get_parameter_wise_stat(result_df, param_name):

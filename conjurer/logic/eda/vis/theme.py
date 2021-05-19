@@ -18,9 +18,14 @@ def conjurer():
             ),
             legend=dict(
                 orient='top',
+                titleAnchor='start',
                 columns=0,
                 titleColor=DARK_GRAY,
                 labelColor=DARK_GRAY
+            ),
+            title=dict(
+                align='left',
+                anchor='start'
             )
         ),
     )

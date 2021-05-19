@@ -7,6 +7,9 @@ from pandas.api import types
 
 logger = logging.getLogger(__name__)
 
+FREQUENCY_CNAME="# of records"
+RATIO_CNAME="ratio of records"
+
 
 def create_frequency_table(series, num_bins=50, minv=None, maxv=None):
     if is_quantitative(series, num_bins):
@@ -30,8 +33,8 @@ def count_frequency_quantitative(series, num_bins, minv, maxv):
     return pandas.DataFrame({
         "{}_lb".format(name): [b.lb for b in bins],
         "{}_ub".format(name): [b.ub for b in bins],
-        "frequency": count_array,
-        "ratio": ratio_array
+        FREQUENCY_CNAME: count_array,
+        RATIO_CNAME: ratio_array
     })
 
 
@@ -44,8 +47,8 @@ def count_frequency_categorical(series, num_bins):
     total = vcounts.values.sum()
     return pandas.DataFrame({
         name: vcounts.index,
-        "frequency": vcounts.values,
-        "ratio": [v/total for v in vcounts.values]
+        FREQUENCY_CNAME: vcounts.values,
+        RATIO_CNAME: [v/total for v in vcounts.values]
     })
 
 
@@ -103,7 +106,7 @@ def create_frequency_table_2d(df, column_x, column_y, num_bins_x=50, num_bins_y=
                 _count_2d(df, column_x, column_y, bin_x, bin_y)
             )
     count_df = pandas.concat(frequency_list, ignore_index=True)
-    count_df["ratio"] = count_df["frequency"] / count_df["frequency"].sum()
+    count_df[RATIO_CNAME] = count_df[FREQUENCY_CNAME] / count_df[FREQUENCY_CNAME].sum()
     return count_df
 
 
@@ -119,7 +122,7 @@ def _count_2d(df, column_x, column_y, bin_x, bin_y):
         **bin_x.bin_info(column_x),
         **bin_y.bin_info(column_y),
         **{
-            "frequency": [len(bin_y.filter(bin_x.filter(df, column_x), column_y))]
+            FREQUENCY_CNAME: [len(bin_y.filter(bin_x.filter(df, column_x), column_y))]
         }
     })
 

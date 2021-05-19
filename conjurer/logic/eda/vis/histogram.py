@@ -3,10 +3,7 @@ import logging
 import altair as alt
 from pandas.api import types
 
-from conjurer.logic.eda.vis import (
-    binned_bar,
-    binning
-)
+from conjurer.logic.eda.vis import binning
 
 
 logger = logging.getLogger(__name__)
@@ -17,15 +14,8 @@ def plot_histogram(values, num_bins=50, normalize=False, minv=None, maxv=None):
         bin_df = binning.create_frequency_table(values, num_bins, minv, maxv)
     except Exception as e:
         raise e
-    column_y = "ratio" if normalize else "frequency"
-    if len(bin_df.columns) > 3:
-        return binned_bar.plot_bar_with_binned(bin_df, bin_df.columns[0], bin_df.columns[1], column_y)
-    else:
-        args = {} if types.is_integer_dtype(values.dtype) else dict(sort="-y")
-        return alt.Chart(bin_df).mark_bar().encode(
-            x=alt.X("{}:N".format(bin_df.columns[0]), **args),
-            y=column_y
-        ).properties(height=200, width=800).interactive()
+    return plot_frequency_numeric(bin_df, normalize) if len(bin_df.columns) > 3\
+        else plot_frequency_category(bin_df, normalize)
 
 
 def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False):
@@ -38,3 +28,27 @@ def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False):
         except binning.BinCreationError as e:
             logger.info("Histogram for {} was skipped: {}".format(column, e.message))
             pass
+
+
+def plot_frequency_numeric(df, normalize, xname=None):
+    column_lb = df.columns[0]
+    column_ub = df.columns[1]
+    xname = xname or column_lb.replace("_lb", "")
+    column_y = binning.RATIO_CNAME if normalize else binning.FREQUENCY_CNAME
+    y_args = dict(axis=alt.Axis(format="%")) if normalize else {}
+    return alt.Chart(df).mark_bar().encode(
+        alt.X(column_lb, bin="binned", axis=alt.Axis(title=xname)),
+        x2=column_ub,
+        y=alt.Y("{}:Q".format(column_y), **y_args),
+        tooltip=[column_lb, column_ub, column_y]
+    ).properties(height=200, width=800, title="Histogram of {}".format(xname)).interactive()
+
+
+def plot_frequency_category(df, normalize, xname=None):
+    x_args = {} if types.is_integer_dtype(df.dtypes[0]) else dict(sort="-y")
+    y_args = dict(axis=alt.Axis(format="%")) if normalize else {}
+    column_y = binning.RATIO_CNAME if normalize else binning.FREQUENCY_CNAME
+    return alt.Chart(df).mark_bar().encode(
+        x=alt.X("{}:N".format(df.columns[0]), **x_args),
+        y=alt.Y("{}:Q".format(column_y), **y_args)
+    ).properties(height=200, width=800, title="Histogram of {}".format(df.columns[0])).interactive()
