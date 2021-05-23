@@ -14,30 +14,30 @@ from tests.ml import utils
 
 
 class TestPandasCV(unittest.TestCase):
-    def test_random_linear_sv_ratio_cl(self):
+    def test_random_linear_holdout_ratio_cl(self):
         model_type, is_cl, with_prep, cv_type = "linear", True, False, "random"
         cv = self._get_cv(model_type, is_cl, with_prep, cv_type)
-        self._test_basic_flow_sv_ratio(cv, is_cl)
+        self._test_basic_flow_holdout_ratio(cv, is_cl)
 
-    def test_random_tree_sv_2dfs_rg(self):
+    def test_random_tree_holdout_2dfs_rg(self):
         model_type, is_cl, with_prep, cv_type = "tree", False, False, "random"
         cv = self._get_cv(model_type, is_cl, with_prep, cv_type)
-        self._test_basic_flow_sv_2dfs(cv, is_cl)
+        self._test_basic_flow_holdout_2dfs(cv, is_cl)
 
     def test_random_tree_with_prep_cv_cl(self):
         model_type, is_cl, with_prep, cv_type = "tree", True, True, "random"
         cv = self._get_cv(model_type, is_cl, with_prep, cv_type)
         self._test_basic_flow_cv(cv, is_cl, 3)
 
-    def test_grid_linear_sv_ratio_cl(self):
+    def test_grid_linear_holdout_ratio_cl(self):
         model_type, is_cl, with_prep, cv_type = "linear", True, False, "grid"
         cv = self._get_cv(model_type, is_cl, with_prep, cv_type)
-        self._test_basic_flow_sv_ratio(cv, is_cl)
+        self._test_basic_flow_holdout_ratio(cv, is_cl)
 
-    def test_grid_tree_sv_2dfs_rg(self):
+    def test_grid_tree_holdout_2dfs_rg(self):
         model_type, is_cl, with_prep, cv_type = "tree", False, False, "grid"
         cv = self._get_cv(model_type, is_cl, with_prep, cv_type)
-        self._test_basic_flow_sv_2dfs(cv, is_cl)
+        self._test_basic_flow_holdout_2dfs(cv, is_cl)
 
     def test_grid_tree_with_prep_cv_cl(self):
         model_type, is_cl, with_prep, cv_type = "tree", True, True, "grid"
@@ -95,21 +95,21 @@ class TestPandasCV(unittest.TestCase):
     def _convert_ml_params(ml_params):
         return {"{}__{}".format("ml", k): v for k, v in ml_params.items()}
 
-    def _test_basic_flow_sv_ratio(self, cv, is_cl):
+    def _test_basic_flow_holdout_ratio(self, cv, is_cl):
         df_training = utils.get_input_df(100)
         df_test = utils.get_input_df(10)
         target_column = "target_cl" if is_cl else "target_rg"
         feature_columns = ["column{}".format(i) for i in range(6)]
-        model = cv.fit_sv_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
+        model = cv.fit_holdout_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
         self._assert_prediction(model, df_test, is_cl)
 
-    def _test_basic_flow_sv_2dfs(self, cv, is_cl):
+    def _test_basic_flow_holdout_2dfs(self, cv, is_cl):
         df_training = utils.get_input_df(100)
         df_validation = utils.get_input_df(100)
         df_test = utils.get_input_df(10)
         target_column = "target_cl" if is_cl else "target_rg"
         feature_columns = ["column{}".format(i) for i in range(6)]
-        model = cv.fit_sv_pandas(df_training, target_column, feature_columns, df_validation)
+        model = cv.fit_holdout_pandas(df_training, target_column, feature_columns, df_validation)
         self._assert_prediction(model, df_test, is_cl)
 
     def _test_basic_flow_cv(self, cv, is_cl, n_fold):

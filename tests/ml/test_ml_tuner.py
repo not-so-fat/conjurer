@@ -8,16 +8,16 @@ def test_lm_cv_grid():
         "ml__penalty": ["l1"],
         "ml__C": [1e-5, 1e-3, 1e-1]
     }
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lm_cv_random():
     cv = ml.get_default_cv("linear_model", "cl", search_type="random")
     cv.n_iter = 2
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
@@ -29,24 +29,24 @@ def test_lightgbm_cv_grid():
         "ml__learning_rate": [0.01],
         "ml__min_child_samples": [0, 20, 100]
     }
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lightgbm_cv_random():
     cv = ml.get_default_cv("lightgbm", "cl", search_type="random")
     cv.n_iter = 5
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_lightgbm_cv_random_rg():
     cv = ml.get_default_cv("lightgbm", "rg", search_type="random")
     cv.n_iter = 5
-    _test_basic_flow_sv_pandas1(cv, False)
-    _test_basic_flow_sv_pandas2(cv, False)
+    _test_basic_flow_holdout_pandas1(cv, False)
+    _test_basic_flow_holdout_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
 
 
@@ -57,16 +57,16 @@ def test_xgboost_cv_grid():
         ml__learning_rate=[0.01],
         ml__ratio_min_child_weight=[None, 0.005, 0.01]
     )
-    _test_basic_flow_sv_pandas1(cv, False)
-    _test_basic_flow_sv_pandas2(cv, False)
+    _test_basic_flow_holdout_pandas1(cv, False)
+    _test_basic_flow_holdout_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
 
 
 def test_xgboost_cv_random():
     cv = ml.get_default_cv("xgboost", "cl", search_type="random")
     cv.n_iter = 5
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
@@ -78,35 +78,35 @@ def test_random_forest_cv_grid():
         ml__max_features=["auto"],
         ml__min_samples_leaf=[0.01, 0.05, 0.1]
     )
-    _test_basic_flow_sv_pandas1(cv, True)
-    _test_basic_flow_sv_pandas2(cv, True)
+    _test_basic_flow_holdout_pandas1(cv, True)
+    _test_basic_flow_holdout_pandas2(cv, True)
     _test_basic_flow_cv_pandas(cv, True)
 
 
 def test_random_forest_cv_random():
     cv = ml.get_default_cv("random_forest", "rg", search_type="random")
     cv.n_iter = 5
-    _test_basic_flow_sv_pandas1(cv, False)
-    _test_basic_flow_sv_pandas2(cv, False)
+    _test_basic_flow_holdout_pandas1(cv, False)
+    _test_basic_flow_holdout_pandas2(cv, False)
     _test_basic_flow_cv_pandas(cv, False)
 
 
-def _test_basic_flow_sv_pandas1(cv, is_cl):
+def _test_basic_flow_holdout_pandas1(cv, is_cl):
     df_training = utils.get_input_df(100)
     df_test = utils.get_input_df(10)
     target_column = "target_cl" if is_cl else "target_rg"
     feature_columns = ["column{}".format(i) for i in range(6)]
-    model = cv.fit_sv_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
+    model = cv.fit_holdout_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
     _assert_prediction(model, df_test, is_cl)
 
 
-def _test_basic_flow_sv_pandas2(cv, is_cl):
+def _test_basic_flow_holdout_pandas2(cv, is_cl):
     df_training = utils.get_input_df(100)
     df_validation = utils.get_input_df(100)
     df_test = utils.get_input_df(10)
     target_column = "target_cl" if is_cl else "target_rg"
     feature_columns = ["column{}".format(i) for i in range(6)]
-    model = cv.fit_sv_pandas(df_training, target_column, feature_columns, df_validation)
+    model = cv.fit_holdout_pandas(df_training, target_column, feature_columns, df_validation)
     _assert_prediction(model, df_test, is_cl)
 
 

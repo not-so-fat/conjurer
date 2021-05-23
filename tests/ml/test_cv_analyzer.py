@@ -37,7 +37,7 @@ def test_random_cv(setup):
     _basic_flow(analyzer)
 
 
-def test_grid_sv(setup):
+def test_grid_holdout(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = True
     target_column = utils.get_target_column(is_cl)
@@ -46,17 +46,17 @@ def test_grid_sv(setup):
         "ml__penalty": ["l1", "l2"],
         "ml__C": [1e-5, 1e-3, 1e-1]
     }
-    model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
+    model = cv_obj.fit_holdout_pandas(df_training, target_column, feature_columns, ratio_training=0.8)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 
 
-def test_random_sv(setup):
+def test_random_holdout(setup):
     df_training, df_validation, df_test, feature_columns = setup
     is_cl = False
     target_column = utils.get_target_column(is_cl)
     cv_obj = ml.get_default_cv("linear_model", "rg", "r2")
-    model = cv_obj.fit_sv_pandas(df_training, target_column, feature_columns, df_validation=df_validation)
+    model = cv_obj.fit_holdout_pandas(df_training, target_column, feature_columns, df_validation=df_validation)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 

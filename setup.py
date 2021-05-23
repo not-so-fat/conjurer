@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="conjurer",
-    version="0.0.17",
+    version="0.0.18",
     author="@not-so-fat",
     author_email="conjurer.not.so.fat@gmail.com",
     description="Python library to help you to perform magic on your data analytics project",
