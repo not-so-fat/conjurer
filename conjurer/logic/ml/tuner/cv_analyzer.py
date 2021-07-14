@@ -63,7 +63,8 @@ class CVAnalyzer(object):
                 logger.warning(
                     "Best performance is achieved at {} value of search: {}={}".format(
                         min_or_max, param_name, info_dict["parameters"][param_name]
-                    ))
+                    )
+                )
 
         info_dict = self.get_best_model_info()
         for param_name in self.param_names:
@@ -148,7 +149,8 @@ def get_parameter_wise_stat(result_df, param_name):
             "uniqueParamValues": [len(param_values)],
             "std (training score)": [numpy.std(mean_metrics.training_score)],
             "std (validation score)": [numpy.std(mean_metrics.validation_score)],
-            "std (computation time)": [numpy.std(mean_metrics.fit_time)]}).set_index("name")
+            "std (computation time)": [numpy.std(mean_metrics.fit_time)]
+    }).set_index("name")
 
 
 def get_param_names(cv_results):
