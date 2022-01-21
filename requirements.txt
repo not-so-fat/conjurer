@@ -1,6 +1,6 @@
 numpy==1.20.0
 scipy==1.6.2
 altair==4.1.0
-IPython==7.22.0
+IPython==7.31.1
 gbm_autosplit==0.0.6
 sklearn_cv_pandas==0.0.7
