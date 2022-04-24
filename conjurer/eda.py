@@ -6,7 +6,6 @@ from datetime import (
 
 import pandas
 import altair
-from pandas._typing import FilePathOrBuffer
 
 from conjurer.logic.eda import check
 from conjurer.logic.eda.load import (
@@ -23,7 +22,7 @@ StrOrList = Union[str, list]
 Orderable = Union[int, float, datetime, date]
 
 
-def read_csv(buffer_or_filepath: FilePathOrBuffer, **kwargs) -> pandas.DataFrame:
+def read_csv(buffer_or_filepath, **kwargs) -> pandas.DataFrame:
     """
     Load CSV as pandas.DataFrame with Int64 / datetime64 column inference
     Args:

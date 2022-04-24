@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="conjurer",
-    version="0.0.19",
+    version="0.0.20",
     author="@not-so-fat",
     author_email="conjurer.not.so.fat@gmail.com",
     description="Python library to help you to perform magic on your data analytics project",
@@ -17,7 +17,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/not-so-fat/conjurer",
     install_requires=requirements,
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["test*"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

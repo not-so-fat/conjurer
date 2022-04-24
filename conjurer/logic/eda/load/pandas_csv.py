@@ -45,17 +45,17 @@ def convert_string_columns(df):
 
 
 def get_timestamp_columns(df):
-    date_columns = []
+    timestamp_columns = []
     for c in [c for c in df.columns if types.is_object_dtype(df.dtypes[c])]:
-        series = df[~df[c].isnull()][c].head()
+        series = df[~df[c].isnull()][c].head(100)
         try:
             pandas.to_datetime(series)
         except Exception:
             continue
         else:
             logger.debug("column {} is detected as timestamp: {}".format(c, series))
-            date_columns.append(c)
-    return date_columns
+            timestamp_columns.append(c)
+    return timestamp_columns
 
 
 def _is_integer(series):
