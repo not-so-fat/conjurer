@@ -12,9 +12,9 @@ ESTIMATOR_PARAMS = dict(
     importance_type="gain"
 )
 estimator = {
-    "cl": gbm_autosplit.LGBMClassifier(metric="auc", **ESTIMATOR_PARAMS),
-    "rg": gbm_autosplit.LGBMRegressor(metric="rmse", **ESTIMATOR_PARAMS),
-    "mcl": gbm_autosplit.LGBMClassifier(metric="multi_logloss", **ESTIMATOR_PARAMS)
+    "cl": gbm_autosplit.LGBMClassifier(eval_metric="auc", **ESTIMATOR_PARAMS),
+    "rg": gbm_autosplit.LGBMRegressor(eval_metric="rmse", **ESTIMATOR_PARAMS),
+    "mcl": gbm_autosplit.LGBMClassifier(eval_metric="multi_logloss", **ESTIMATOR_PARAMS)
 }
 
 grid_rg = dict(

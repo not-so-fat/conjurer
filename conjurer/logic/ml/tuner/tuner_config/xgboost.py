@@ -11,9 +11,9 @@ ESTIMATOR_PARAMS = dict(
     importance_type="gain"
 )
 estimator = {
-    "cl": gbm_autosplit.XGBClassifier(metric="auc", **ESTIMATOR_PARAMS),
-    "rg": gbm_autosplit.XGBRegressor(metric="rmse", **ESTIMATOR_PARAMS),
-    "mcl": gbm_autosplit.XGBClassifier(metric="accuracy", **ESTIMATOR_PARAMS)
+    "cl": gbm_autosplit.XGBClassifier(eval_metric="auc", **ESTIMATOR_PARAMS),
+    "rg": gbm_autosplit.XGBRegressor(eval_metric="rmse", **ESTIMATOR_PARAMS),
+    "mcl": gbm_autosplit.XGBClassifier(eval_metric="accuracy", **ESTIMATOR_PARAMS)
 }
 
 grid = dict(

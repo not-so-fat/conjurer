@@ -2,5 +2,5 @@ numpy
 scipy
 altair
 IPython
-gbm_autosplit
+gbm_autosplit>=0.0.8
 sklearn_cv_pandas>=0.0.9
