@@ -1,6 +1,6 @@
 import pandas
 from pandas.api import types
-from IPython.core.display import display
+from IPython.display import display
 
 from conjurer.logic.eda.check import stat_calculator
 from conjurer.logic.eda.vis import histogram
@@ -19,6 +19,18 @@ def check_stats(df, skip_histogram=False):
     print("[head]")
     display(df.head())
     return stat_df
+
+
+def check_series(df, unit_keys):
+    grb_obj = df.groupby(unit_keys)
+    args_dict = {"count": grb_obj.count().apply(max, axis=1)}
+    for c in df.columns:
+        if c in unit_keys:
+            continue
+        cnames, values = stat_calculator.calculate_series_stats(c, df[c].dtype, grb_obj)
+        for c, v in zip(cnames, values):
+            args_dict[c] = v
+    return pandas.DataFrame(args_dict)
 
 
 def get_unique_values(df, columns):

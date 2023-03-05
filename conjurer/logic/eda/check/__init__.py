@@ -6,6 +6,7 @@ from .api import *
 
 __all__ = [
     "check_stats",
+    "check_series",
     "get_unique_values",
     "get_columns_in_dfs",
     "get_fk_coverage"

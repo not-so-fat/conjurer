@@ -35,7 +35,6 @@ def calc_column_stat(df):
             },
             columns=output_column_names
         )
-
     return pandas.concat([_calc_stat(c, df_size) for c in df.columns], axis=0)
 
 
@@ -71,6 +70,18 @@ def calculate_percentiles(array, ratio_list):
     sorted_array = numpy.sort(valid_array)
     ind_list = [_get_ind(n_record, ratio) for ratio in ratio_list]
     return numpy.array([sorted_array[ind] for ind in ind_list])
+
+
+def calculate_series_stats(column_name, column_dtype, grb_obj):
+    if types.is_numeric_dtype(column_dtype):
+        return [f"{agg}({column_name})" for agg in ["min", "max", "mean", "std"]], \
+            [grb_obj[column_name].min(), grb_obj[column_name].max(),
+             grb_obj[column_name].mean(), grb_obj[column_name].std()]
+    elif types.is_datetime64_any_dtype(column_dtype):
+        return [f"{agg}({column_name})" for agg in ["min", "max"]], \
+            [grb_obj[column_name].min(), grb_obj[column_name].max()]
+    else:
+        return [f"nunique({column_name})"], [grb_obj[column_name].nunique()]
 
 
 def _get_ind(n_record, ratio):

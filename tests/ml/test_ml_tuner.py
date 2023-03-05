@@ -75,7 +75,7 @@ def test_random_forest_cv_grid():
     cv.param_grid = dict(
         ml__max_depth=[2],
         ml__n_estimators=[100],
-        ml__max_features=["auto"],
+        ml__max_features=["sqrt"],
         ml__min_samples_leaf=[0.01, 0.05, 0.1]
     )
     _test_basic_flow_holdout_pandas1(cv, True)

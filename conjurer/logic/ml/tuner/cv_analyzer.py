@@ -2,7 +2,7 @@ import logging
 
 import numpy
 import pandas
-from IPython.core.display import display
+from IPython.display import display
 import altair as alt
 
 
@@ -40,8 +40,14 @@ class CVAnalyzer(object):
         best_model_row = self.result_df.sort_values(
                 by="validation_score", ascending=METRIC_MINIMIZE).head(1)
         return dict(
-            training=best_model_row.training_score.values[0],
-            validation=best_model_row.validation_score.values[0],
+            validation=(
+                best_model_row.validation_score.values[0],
+                best_model_row.std_validation_score.values[0]
+            ),
+            training=(
+                best_model_row.training_score.values[0],
+                best_model_row.std_training_score.values[0],
+            ),
             parameters={
                 param_name: best_model_row["param_{}".format(param_name)].values[0]
                 for param_name in self.param_names
@@ -89,9 +95,9 @@ def create_result_df(cv_result, param_names):
     values_dict["std_fit_time"] = cv_result["std_fit_time"]
     return pandas.DataFrame(
         values_dict, 
-        columns=["param_{}".format(key) for key in param_names] \
-                + ["training_score", "validation_score", "fit_time",
-                    "std_training_score", "std_validation_score", "std_fit_time"]
+        columns= ["validation_score", "std_validation_score", "fit_time", "std_fit_time",
+                    "training_score", "std_training_score"] \
+                + ["param_{}".format(key) for key in param_names]
     )
 
 
