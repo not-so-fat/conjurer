@@ -50,7 +50,7 @@ def check_stats(df: pandas.DataFrame, skip_histogram: bool = False) -> pandas.Da
     return check.check_stats(df, skip_histogram)
 
 
-def check_series(df: pandas.DataFrame, unit_keys: list[str]) -> pandas.DataFrame:
+def check_series(df: pandas.DataFrame, unit_keys: list) -> pandas.DataFrame:
     """
     Calculate basic statistics for pandas.DataFrame which includes multiple times series
     (e.g. sales history for all stores and items)
