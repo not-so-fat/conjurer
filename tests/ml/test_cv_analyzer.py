@@ -22,7 +22,7 @@ def test_grid_cv(setup):
         "ml__penalty": ["l1", "l2"],
         "ml__C": [1e-5, 1e-3, 1e-1]
     }
-    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
+    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, cv=3)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 
@@ -32,7 +32,7 @@ def test_random_cv(setup):
     is_cl = False
     target_column = utils.get_target_column(is_cl)
     cv_obj = ml.get_default_cv("linear_model", "rg", "r2")
-    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=3)
+    model = cv_obj.fit_cv_pandas(df_training, target_column, feature_columns, cv=3)
     analyzer = ml.CVAnalyzer(model.estimator)
     _basic_flow(analyzer)
 

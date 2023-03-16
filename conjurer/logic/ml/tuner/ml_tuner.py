@@ -14,7 +14,7 @@ default_scoring = {
 }
 
 
-def get_cv(ml_type, problem_type, scoring=None, search_type="random", n_iter=20, **kwargs):
+def get_cv(ml_type, problem_type, scoring=None, search_type="random", n_iter=20, random_state=None, **kwargs):
     """
     Get RandomizedSearchCV or GridSearchCV object for tuning
     Args:
@@ -22,8 +22,8 @@ def get_cv(ml_type, problem_type, scoring=None, search_type="random", n_iter=20,
         problem_type (str): One of "cl", "rg", "mcl"
         scoring (str or scorer): `scoring` for RandomizedSearchCV / GridSearchCV
         search_type (str): Return RandomizedSearchCV if "random", GridSearchCV if "grid"
-        param_dict (dict): param_distribution or param_grid for CV object
         n_iter (int): `n_iter` for RandomizedSearchCV
+        random_state: random_state for CV and models
         kwargs: keyword arguments for CV object
 
     Returns:
@@ -33,12 +33,13 @@ def get_cv(ml_type, problem_type, scoring=None, search_type="random", n_iter=20,
     config = getattr(globals()[ml_type], "config")
     scoring = scoring or default_scoring[problem_type]
     ml_estimator = config.estimator_dict[problem_type]
+    ml_estimator.random_state = random_state
     estimator = make_pipeline.add_default_preprocessing("ml", ml_estimator)
     param_dict = _get_param_dict(problem_type, search_type, "ml", config.parameters_dict)
     cv_class = ml.RandomizedSearchCV if search_type == "random" else ml.GridSearchCV
     if search_type == "random":
         kwargs["n_iter"] = n_iter
-    return cv_class(estimator, param_dict, scoring=scoring, **kwargs)
+    return cv_class(estimator, param_dict, scoring=scoring, random_state=random_state, **kwargs)
 
 
 def _validate_attr(ml_type, problem_type, search_type):

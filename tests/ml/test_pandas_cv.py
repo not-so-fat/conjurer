@@ -117,7 +117,7 @@ class TestPandasCV(unittest.TestCase):
         df_test = utils.get_input_df(10)
         target_column = "target_cl" if is_cl else "target_rg"
         feature_columns = ["column{}".format(i) for i in range(6)]
-        model = cv.fit_cv_pandas(df_training, target_column, feature_columns, n_fold=n_fold)
+        model = cv.fit_cv_pandas(df_training, target_column, feature_columns, cv=n_fold)
         self._assert_prediction(model, df_test, is_cl)
 
     def _assert_prediction(self, model, df_test, is_cl):
