@@ -22,7 +22,7 @@ def calc_column_stat(df):
         return pandas.DataFrame(
             {
                 "column_name": [column],
-                "dtype": df.dtypes[column],
+                "dtype": [str(df.dtypes[column])],
                 "min": [df[column].min()] if _orderable(df.dtypes[column]) else [pandas.NA],
                 "max": [df[column].max()] if _orderable(df.dtypes[column]) else [pandas.NA],
                 "mean": [df[column].mean()] if types.is_numeric_dtype(df.dtypes[column]) else [pandas.NA],
@@ -38,12 +38,45 @@ def calc_column_stat(df):
     return pandas.concat([_calc_stat(c, df_size) for c in df.columns], axis=0)
 
 
+def to_hashable(value):
+    """Convert nested/unhashable values (dict/list/set) into a hashable form."""
+    if isinstance(value, dict):
+        return tuple(sorted((to_hashable(k), to_hashable(v)) for k, v in value.items()))
+    if isinstance(value, (list, tuple)):
+        return tuple(to_hashable(v) for v in value)
+    if isinstance(value, set):
+        return frozenset(to_hashable(v) for v in value)
+    try:
+        hash(value)
+    except TypeError:
+        return repr(value)
+    return value
+
+
+def count_duplicated_rows(df):
+    """Count duplicated rows; works even when cells contain dict/list values."""
+    try:
+        return int(df.duplicated().sum())
+    except TypeError:
+        hashed = df.apply(lambda col: col.map(to_hashable))
+        return int(hashed.duplicated().sum())
+
+
 def get_unique_values(df, columns):
     df_tmp = df[columns].dropna()
     if isinstance(df_tmp, pandas.Series):
-        return set([v for v in df_tmp.values])
+        values = list(df_tmp.values)
+        try:
+            return set(values)
+        except TypeError:
+            # object columns may contain dict/list; return hashable forms
+            return {to_hashable(v) for v in values}
     else:
-        return set([tuple(v) for v in df_tmp.values])
+        rows = [tuple(v) for v in df_tmp.values]
+        try:
+            return set(rows)
+        except TypeError:
+            return {tuple(to_hashable(x) for x in row) for row in rows}
 
 
 def calculate_percentiles_for_df(df, column_list, ratio_list):

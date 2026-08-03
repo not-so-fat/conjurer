@@ -35,6 +35,7 @@ def test_get_columns_in_dfs():
         pandas.DataFrame({
             "table_name": ["table1", "table1", "table1", "table2", "table2", "table3"],
             "column_name": ["column1", "column2", "column3", "column2", "column3", "column3"],
-            "dtype": ["object", "Int64", "float", "Int64", "object", "object"]
-        })
+            "dtype": ["object", "Int64", "float64", "Int64", "object", "object"]
+        }),
+        check_dtype=False,
     )

@@ -81,6 +81,22 @@ def test_3_composite(input_df):
     _test(input_df, ["integer_1", "float_1", "string_with_null"], {(1, 1.5, "aaa")})
 
 
+def test_dict_column():
+    df = pandas.DataFrame({
+        "payload": [{"x": 1}, {"x": 1}, {"x": 2}, None],
+    })
+    unique_values = eda.get_unique_values(df, "payload")
+    assert unique_values == {(("x", 1),), (("x", 2),)}
+
+
+def test_list_column():
+    df = pandas.DataFrame({
+        "tags": [["a", "b"], ["a", "b"], ["c"], None],
+    })
+    unique_values = eda.get_unique_values(df, "tags")
+    assert unique_values == {("a", "b"), ("c",)}
+
+
 def _test(input_df, columns, expected_values):
     unique_values = eda.get_unique_values(input_df, columns)
     assert unique_values == expected_values, \

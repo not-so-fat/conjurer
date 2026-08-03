@@ -1,11 +1,16 @@
 import setuptools
-import pkg_resources
+
 
 with open("requirements.txt", "r") as f:
-    requirements = [str(req) for req in pkg_resources.parse_requirements(f)]
+    requirements = [
+        line.strip()
+        for line in f
+        if line.strip() and not line.strip().startswith("#")
+    ]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
 
 setuptools.setup(
     name="conjurer",

@@ -32,5 +32,10 @@ def conjurer():
 
 
 def apply_theme():
+    # Altair 5.5+: altair.theme; older: altair.themes
+    theme_api = getattr(altair, "theme", None)
+    if theme_api is not None and hasattr(theme_api, "register"):
+        theme_api.register("conjurer", enable=True)(conjurer)
+        return
     altair.themes.register('conjurer', conjurer)
     altair.themes.enable('conjurer')

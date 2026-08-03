@@ -9,7 +9,7 @@ from conjurer.logic.eda.vis import histogram
 def check_stats(df, skip_histogram=False):
     print("[table-wise confirmation]")
     print("shape: {}x{}".format(len(df), len(df.columns)))
-    print("duplication: {}".format(len(df[df.duplicated()])))
+    print("duplication: {}".format(stat_calculator.count_duplicated_rows(df)))
     print("[column-wise confirmation]")
     stat_df = stat_calculator.calc_column_stat(df)
     display(stat_df)
@@ -41,8 +41,8 @@ def get_columns_in_dfs(df_list, name_list):
     return pandas.concat([
         pandas.DataFrame({
             "table_name": [name] * len(df.columns),
-            "column_name": df.columns,
-            "dtype": [df.dtypes[c] for c in df.columns]
+            "column_name": list(df.columns),
+            "dtype": [str(df.dtypes[c]) for c in df.columns]
         })
         for df, name in zip(df_list, name_list)
     ], ignore_index=True)
