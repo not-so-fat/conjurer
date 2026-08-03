@@ -1,6 +1,8 @@
 numpy
 scipy
+pandas
+scikit-learn
 altair
 IPython
-gbm_autosplit>=0.0.10
-sklearn_cv_pandas>=0.0.11
+gbm_autosplit>=0.0.13
+sklearn_cv_pandas>=0.1.0

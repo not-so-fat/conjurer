@@ -110,7 +110,7 @@ def plot_metric_and_time(melt_df, column_x, metric_name, param_names):
     points = alt.Chart(melt_df[melt_df[MELT_VARNAME].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)), color=MELT_VARNAME
     ).mark_circle(opacity=0.4)
-    mean_df = melt_df.groupby(by=[MELT_VARNAME, column_x]).mean().reset_index().sort_values(by=column_x)
+    mean_df = melt_df.groupby(by=[MELT_VARNAME, column_x]).mean(numeric_only=True).reset_index().sort_values(by=column_x)
     mean_chart = alt.Chart(
         mean_df[mean_df[MELT_VARNAME].isin(["training_score", "validation_score"])]).encode(
         x=column_x, y=alt.Y("value", title=metric_name, scale=alt.Scale(zero=False)),
@@ -149,7 +149,9 @@ def create_melt_df(result_df, param_names):
 def get_parameter_wise_stat(result_df, param_name):
     param_column_name = "param_{}".format(param_name)
     param_values = numpy.sort(result_df[param_column_name].unique())
-    mean_metrics = result_df[[param_column_name, "training_score", "validation_score", "fit_time"]].groupby(by=param_column_name).mean()
+    mean_metrics = result_df[[param_column_name, "training_score", "validation_score", "fit_time"]].groupby(
+        by=param_column_name
+    ).mean(numeric_only=True)
     return pandas.DataFrame({
             "name": [param_name],
             "uniqueParamValues": [len(param_values)],
