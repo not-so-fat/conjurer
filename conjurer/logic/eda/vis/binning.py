@@ -28,7 +28,8 @@ def is_quantitative(series, num_bins):
 def count_frequency_quantitative(series, num_bins, minv, maxv):
     name = series.name or "value"
     bins = create_bins_quantitative(series, num_bins, minv, maxv)
-    count_array = get_continuous_value_counts(series.values, bins)
+    # Use Series, not .values — tz-aware datetimes lose tz in the ndarray.
+    count_array = get_continuous_value_counts(series, bins)
     ratio_array = count_array / count_array.sum()
     return pandas.DataFrame({
         "{}_lb".format(name): [b.lb for b in bins],

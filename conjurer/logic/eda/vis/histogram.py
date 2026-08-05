@@ -25,14 +25,10 @@ def plot_histogram_for_stats(df, stat_df, num_bins=50, normalize=False):
                 ["min", "max"]].values.tolist()[0]
         try:
             plot_histogram(df[column], num_bins, normalize, minv, maxv).display()
-        except Exception as e:
-            # Skip columns pandas/altair cannot bin or encode (e.g. nested object values)
-            if isinstance(e, binning.BinCreationError):
-                message = e.message
-            else:
-                message = str(e)
-            logger.info("Histogram for {} was skipped: {}".format(column, message))
-            pass
+        except binning.BinCreationError as e:
+            # Only skip expected bin failures (e.g. constant / all-null). Other errors must raise.
+            logger.info("Histogram for {} was skipped: {}".format(column, e.message))
+
 
 
 def plot_frequency_numeric(df, normalize, xname=None):
