@@ -13,6 +13,7 @@ from conjurer.logic.eda.load import (
     df_dict_loader
 )
 from conjurer.logic.eda.vis import (
+    aggy,
     histogram,
     scatter
 )
@@ -166,6 +167,32 @@ def plot_heatmap(df: pandas.DataFrame, column_x: str, column_y: str, num_bins_x:
         altair.Chart
     """
     return scatter.plot_heatmap(df, column_x, column_y, num_bins_x, num_bins_y, xmin, xmax, ymin, ymax)
+
+
+def plot_aggy(df: pandas.DataFrame, column_x: str, column_y: str, agg: str = "sum",
+              freq: str = None, num_bins: int = 50, mark: str = "bar", fill_empty: bool = None,
+              xmin: Orderable = None, xmax: Orderable = None) -> altair.Chart:
+    """
+    Plot aggregated Y by buckets of X (bar by default, optional line).
+
+    Args:
+        df (pandas.DataFrame): Data frame with raw rows
+        column_x (str): Column to group/bin (numeric or datetime; datetime required if freq is set)
+        column_y (str): Column to aggregate (numeric unless agg='count')
+        agg (str): One of sum, count, mean, min, max, median
+        freq (str, optional): Calendar freq for pandas Grouper (e.g. 'D', 'H'). If set, num_bins is ignored
+        num_bins (int): Equal-width bins when freq is None (default 50)
+        mark (str): 'bar' (default) or 'line'
+        fill_empty (bool, optional): Fill missing buckets. Default True if freq is set, else False
+        xmin, xmax (optional): Filter / domain bounds on column_x
+
+    Returns:
+        altair.Chart
+    """
+    return aggy.plot_aggy(
+        df, column_x, column_y, agg=agg, freq=freq, num_bins=num_bins,
+        mark=mark, fill_empty=fill_empty, xmin=xmin, xmax=xmax,
+    )
 
 
 DfDictLoader = df_dict_loader.DfDictLoader
