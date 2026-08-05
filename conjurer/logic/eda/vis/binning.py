@@ -41,15 +41,12 @@ def count_frequency_quantitative(series, num_bins, minv, maxv):
 
 def count_frequency_categorical(series, num_bins):
     name = series.name or "value"
-    vcounts = series.value_counts()
-    if len(vcounts) > num_bins:
-        index = vcounts[:num_bins].index
-        vcounts = get_categorical_value_counts(series, index)
+    vcounts = get_categorical_value_counts(series, num_bins)
     total = vcounts.values.sum()
     return pandas.DataFrame({
-        name: vcounts.index,
-        FREQUENCY_CNAME: vcounts.values,
-        RATIO_CNAME: [v/total for v in vcounts.values]
+        name: list(vcounts.index),
+        FREQUENCY_CNAME: list(vcounts.values),
+        RATIO_CNAME: [v / total for v in vcounts.values]
     })
 
 
@@ -85,13 +82,36 @@ def get_continuous_value_counts(series, bins):
     return numpy.array([len(b.filter(series)) for b in bins])
 
 
-def get_categorical_value_counts(series, index=None):
-    vcounts = series.value_counts()
-    if index is not None:
-        other_counts = vcounts[~vcounts.index.isin(index)].values.sum()
-        vcounts = vcounts[index]
-        vcounts["OTHER"] = other_counts
+def get_categorical_value_counts(series, num_bins=None):
+    """
+    Value counts for categorical histogram bins.
+
+    When there are more unique values than ``num_bins``, keep the top bins and
+    fold the rest into ``OTHER``. Use position-based slicing (not label
+    indexing) so object columns with unhashable values (dict/list) work —
+    ``Series.loc[Index[dict, ...]]`` raises ``TypeError: unhashable type: 'dict'``.
+    """
+    try:
+        vcounts = series.value_counts()
+    except TypeError:
+        # Some pandas versions cannot hash nested object cells in value_counts.
+        labels = series.map(_categorical_label)
+        labels.name = series.name
+        vcounts = labels.value_counts()
+    if num_bins is not None and len(vcounts) > num_bins:
+        top = vcounts.iloc[:num_bins]
+        other_counts = vcounts.iloc[num_bins:].sum()
+        vcounts = pandas.concat([top, pandas.Series([other_counts], index=["OTHER"])])
     return vcounts
+
+
+def _categorical_label(value):
+    """Stable, hashable label for nested/unhashable object cells."""
+    try:
+        hash(value)
+        return value
+    except TypeError:
+        return str(value)
 
 
 def create_frequency_table_2d(df, column_x, column_y, num_bins_x=50, num_bins_y=50,

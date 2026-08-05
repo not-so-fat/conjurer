@@ -69,3 +69,26 @@ def test_check_stats_tz_aware_does_not_skip(caplog):
         eda.check_stats(df)
     skip_msgs = [r.message for r in caplog.records if "was skipped" in r.message]
     assert skip_msgs == [], skip_msgs
+
+
+def test_frequency_table_many_unique_dicts():
+    """Collapsing to OTHER must not use label indexing on dict Index labels."""
+    series = pandas.Series([{"i": i} for i in range(60)] * 2, name="payload")
+    freq = binning.create_frequency_table(series, num_bins=10)
+    assert len(freq) == 11  # top 10 + OTHER
+    assert freq.iloc[-1][series.name] == "OTHER"
+    assert freq[binning.FREQUENCY_CNAME].sum() == len(series)
+
+
+def test_frequency_table_many_unique_lists():
+    series = pandas.Series([[i, i + 1] for i in range(60)], name="tags")
+    freq = binning.create_frequency_table(series, num_bins=10)
+    assert len(freq) == 11
+    assert freq.iloc[-1][series.name] == "OTHER"
+    assert freq[binning.FREQUENCY_CNAME].sum() == len(series)
+
+
+def test_plot_histogram_dict_column():
+    series = pandas.Series([{"i": i % 5} for i in range(40)], name="payload")
+    chart = eda.plot_histogram(series, num_bins=10)
+    assert chart is not None

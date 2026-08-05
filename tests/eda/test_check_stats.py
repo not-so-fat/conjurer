@@ -51,3 +51,15 @@ def test_dict_and_list_columns():
     payload_row = stat_df[stat_df["column_name"] == "payload"].iloc[0]
     assert payload_row["unique_count"] == 2
     assert not bool(payload_row["is_unique"])
+
+
+def test_check_stats_dict_columns_with_histogram():
+    """Histogram path must not crash on dict/list columns (incl. >num_bins uniques)."""
+    df = pandas.DataFrame({
+        "id": list(range(60)),
+        "payload": [{"i": i} for i in range(60)],
+        "tags": [["t", i] for i in range(60)],
+        "label": [f"c{i % 3}" for i in range(60)],
+    })
+    stat_df = eda.check_stats(df)
+    assert len(stat_df) == 4
