@@ -80,3 +80,16 @@ def test_mixed_timestamp_offsets_stay_as_text(matching_rows):
     result = eda.read_csv(io.StringIO(csv_text))
 
     assert result["timestamp"].tolist() == values
+
+
+def test_mixed_iso8601_utc_variants_parse_as_utc():
+    csv = io.StringIO("timestamp,id\n2024-01-01 00:00:00+00:00,1\n2024-01-02T00:00:00Z,2\n")
+
+    result = eda.read_csv(csv)
+
+    expected = pandas.Series(
+        [datetime(2024, 1, 1, tzinfo=timezone.utc), datetime(2024, 1, 2, tzinfo=timezone.utc)],
+        dtype=pandas.DatetimeTZDtype(unit="ns", tz=timezone.utc),
+        name="timestamp",
+    )
+    testing.assert_series_equal(result["timestamp"], expected)
