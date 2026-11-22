@@ -39,8 +39,9 @@ def convert_integer_columns(df):
 def convert_timestamp_columns(df):
     timestamp_columns = get_timestamp_columns(df)
     for c in timestamp_columns:
-        # Normalize to ns for stable dtype across pandas versions (pandas 3 defaults to us)
-        df[c] = pandas.to_datetime(df[c]).astype("datetime64[ns]")
+        parsed = _parse_timestamp_series(df[c])
+        if parsed is not None:
+            df[c] = parsed
     return df
 
 
@@ -53,17 +54,29 @@ def convert_string_columns(df):
 def get_timestamp_columns(df):
     timestamp_columns = []
     for c in [c for c in df.columns if _is_text_like_dtype(df.dtypes[c])]:
-        series = df[~df[c].isnull()][c].head(100)
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)
-                pandas.to_datetime(series)
-        except Exception:
-            continue
-        else:
+        series = df[c].dropna().head(100)
+        if _parse_timestamp_series(series) is not None:
             logger.debug("column {} is detected as timestamp: {}".format(c, series))
             timestamp_columns.append(c)
     return timestamp_columns
+
+
+def _parse_timestamp_series(series):
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            warnings.filterwarnings(
+                "ignore", message="In a future version of pandas, parsing datetimes "
+                "with mixed time zones", category=FutureWarning
+            )
+            parsed = pandas.to_datetime(series)
+        # Pandas 2 can return object dtype for mixed offsets. Keep the original text.
+        if types.is_datetime64_any_dtype(parsed.dtype):
+            return parsed.dt.as_unit("ns")
+    except (TypeError, ValueError, OverflowError):
+        # Parsing or ns conversion can fail on values outside the inference sample.
+        return None
+    return None
 
 
 def _is_text_like_dtype(dtype):
