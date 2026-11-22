@@ -69,7 +69,12 @@ def _parse_timestamp_series(series):
                 "ignore", message="In a future version of pandas, parsing datetimes "
                 "with mixed time zones", category=FutureWarning
             )
-            parsed = pandas.to_datetime(series)
+            try:
+                parsed = pandas.to_datetime(series)
+            except ValueError:
+                # The format is inferred from the first value, so ISO 8601 variants
+                # in one column (e.g. "...+00:00" and "...T...Z") fail; retry as ISO 8601.
+                parsed = pandas.to_datetime(series, format="ISO8601")
         # Pandas 2 can return object dtype for mixed offsets. Keep the original text.
         if types.is_datetime64_any_dtype(parsed.dtype):
             return parsed.dt.as_unit("ns")
