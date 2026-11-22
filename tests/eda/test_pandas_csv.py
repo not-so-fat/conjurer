@@ -1,7 +1,8 @@
 import io
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pandas
+import pytest
 from pandas import testing
 
 from conjurer import eda
@@ -43,3 +44,39 @@ def test_all_type():
 def test_get_timestamp_columns():
     date_columns = pandas_csv.get_timestamp_columns(pandas.read_csv(io.StringIO(csv_data.ALL_TYPE_TEST_CSV)))
     assert date_columns == ["date1", "date2", "timestamp1"]
+
+
+@pytest.mark.parametrize(
+    ("suffix", "tz"),
+    [
+        ("+00:00", timezone.utc),
+        ("Z", timezone.utc),
+        ("+05:30", timezone(timedelta(hours=5, minutes=30))),
+        ("", None),
+    ],
+)
+def test_timestamp_resolution_preserves_timezone(suffix, tz):
+    csv = io.StringIO(f"timestamp,id\n2024-01-01 00:00:00{suffix},1\n,2\n")
+
+    result = eda.read_csv(csv)
+
+    dtype = "datetime64[ns]" if tz is None else pandas.DatetimeTZDtype(unit="ns", tz=tz)
+    expected = pandas.Series(
+        [datetime(2024, 1, 1, tzinfo=tz), None], dtype=dtype, name="timestamp"
+    )
+    testing.assert_series_equal(result["timestamp"], expected)
+
+
+@pytest.mark.parametrize("matching_rows", [1, 100])
+def test_mixed_timestamp_offsets_stay_as_text(matching_rows):
+    values = ["2024-01-01 00:00:00+00:00"] * matching_rows
+    values.append("2024-01-01 00:00:00+05:30")
+    csv_text = "timestamp\n" + "\n".join(values)
+    expected_candidates = ["timestamp"] if matching_rows == 100 else []
+    assert pandas_csv.get_timestamp_columns(
+        pandas.read_csv(io.StringIO(csv_text))
+    ) == expected_candidates
+
+    result = eda.read_csv(io.StringIO(csv_text))
+
+    assert result["timestamp"].tolist() == values
